@@ -1,94 +1,62 @@
 <?php
-// Time-locked Password Management System
-// Simple and clean architecture
-
-// Prevent caching - always fetch from server
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
-
-// Set timezone to UTC (all server-side processing is based on UTC)
 date_default_timezone_set('UTC');
 
-// File paths and configuration
-$baseDir = __DIR__;
-$passwordManagerPath = 'src/PasswordManager.php';
-$translationPath = 'translation/Translation.php';
-$secretsPath = 'secrets.php';
-$secretsExamplePath = 'secrets.example.php';
-$cssPath = 'assets/style.css';
-$jsPath = 'assets/script.js';
-$iconPath = 'assets/calendar.svg';
-
-// Get file modification times for cache busting
-$cssVersion = filemtime($baseDir . '/' . $cssPath);
-$jsVersion = filemtime($baseDir . '/' . $jsPath);
-
-require_once $passwordManagerPath;
-require_once $translationPath;
-
-$t = Translation::getObject();
-
-// Load secrets
-if (file_exists($baseDir . '/' . $secretsPath)) {
-    require_once $secretsPath;
+// Load secrets for API processing
+if (file_exists(__DIR__ . '/secrets.php')) {
+    require_once 'secrets.php';
 } else {
-    require_once $secretsExamplePath;
+    require_once 'secrets.example.php';
 }
-$hkdfKey = Secrets::HKDF_KEY;
-$opensslKey = Secrets::OPENSSL_KEY;
 
-$passwordManager = new PasswordManager($hkdfKey, $opensslKey);
+require_once 'src/PasswordManager.php';
 
 // Handle API requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    header('Content-Type: application/json; charset=utf-8');
+(function () {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+        header('Content-Type: application/json; charset=utf-8');
 
-    if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
-        try {
-            // Process datetime sent from client as UTC
-            $unlockDateTime = new DateTime($_POST['datetime'], new DateTimeZone('UTC'));
-            $password = $passwordManager->generateRandomPassword();
-            $encryptedData = $passwordManager->encryptPassword($password, $unlockDateTime->format('Y-m-d H:i:s'));
+        if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
+            try {
+                $passwordManager = new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY);
 
-            echo json_encode([
-                'password' => $password,
-                'encrypted_data' => $encryptedData,
-                'unlock_time' => $unlockDateTime->format('Y-m-d\TH:i:s\Z'),
-                'decrypt_url' => 'http://' . $_SERVER['HTTP_HOST'] . '/?data=' . $encryptedData
-            ]);
-        } catch (Exception $e) {
-            echo json_encode(['error' => 'Invalid datetime format']);
+                // Process datetime sent from client as UTC
+                $unlockDateTime = new DateTime($_POST['datetime'], new DateTimeZone('UTC'));
+                $password = $passwordManager->generateRandomPassword();
+                $encryptedData = $passwordManager->encryptPassword($password, $unlockDateTime->format('Y-m-d H:i:s'));
+
+                echo json_encode([
+                    'password' => $password,
+                    'encrypted_data' => $encryptedData,
+                    'unlock_time' => $unlockDateTime->format('Y-m-d\TH:i:s\Z'),
+                    'decrypt_url' => 'http://' . $_SERVER['HTTP_HOST'] . '/?data=' . $encryptedData
+                ]);
+            } catch (Exception) {
+                echo json_encode(['error' => 'Invalid datetime format']);
+            }
         }
+        exit;
     }
-    exit;
-}
+})();
 
-// Handle password decryption
-if (isset($_GET['data'])) {
-    $result = $passwordManager->decryptPassword($_GET['data']);
-
-    if (isset($result['error'])) {
-        if (isset($result['unlock_time'])) {
-            // Keep message concise as UTC time will be converted on client side
-            $message = $result['error'];
-            $unlockTimeUTC = $result['unlock_time'];
-        } else {
-            $message = $result['error'];
-        }
-        $messageType = 'error';
-    } else {
-        $decryptedPassword = $result['password'];
-        $message = 'Password: ' . $decryptedPassword;
-        $messageType = 'success';
-        $unlockTimeUTC = $result['unlock_time'] ?? null;
-    }
-}
+require_once 'src/ViewConfiguration.php';
+require_once 'src/ViewState.php';
+require_once 'translation/Translation.php';
 
 function h(string $str): string
 {
     return htmlspecialchars($str);
 }
+
+// Initialize configuration and state
+$config = new ViewConfiguration();
+$state = new ViewState(new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY));
+
+$t = Translation::getObject();
+
+$state->handleDecryption($_GET['data'] ?? null);
 
 ?>
 <!DOCTYPE html>
@@ -117,39 +85,33 @@ function h(string $str): string
 
     <title><?php echo h($t->ogTitle); ?></title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="<?php echo $cssPath; ?>?v=<?php echo $cssVersion; ?>">
+    <link rel="stylesheet" href="<?php echo ViewConfiguration::CSS_PATH; ?>?v=<?php echo $config->cssVersion; ?>">
 </head>
 
 <body>
     <div class="container">
         <h1><a href="/" id="pageTitle"><?php echo h($t->pageTitle); ?></a></h1>
 
-        <?php if (isset($message)): ?>
-            <div class="message <?php echo $messageType; ?>" id="messageDiv" data-unlock-time="<?php echo isset($unlockTimeUTC) ? $unlockTimeUTC : ''; ?>">
-                <span id="messageText"><?php echo h($message); ?></span>
-                <?php if (isset($unlockTimeUTC) && $messageType === 'error'): ?>
-                    <div id="unlockTimeDisplay" style="margin-top: 10px; font-size: 14px;"></div>
+        <?php if ($state->hasMessage()): ?>
+            <div class="message <?php echo $state->messageType; ?>" id="messageDiv" data-unlock-time="<?php echo $state->unlockTimeUTC ?? ''; ?>">
+                <span id="messageText"><?php echo h($state->message); ?></span>
+                <?php if ($state->unlockTimeUTC && $state->messageType === 'error'): ?>
+                    <div id="unlockTimeDisplay" class="unlock-time-display"></div>
                 <?php endif; ?>
             </div>
-            <?php if ($messageType === 'success' && isset($decryptedPassword)): ?>
-                <button class="copy-btn" onclick="copyToClipboard('<?php echo h($decryptedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
+            <?php if ($state->messageType === 'success' && $state->decryptedPassword): ?>
+                <button class="copy-btn" onclick="copyToClipboard('<?php echo h($state->decryptedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
             <?php endif; ?>
         <?php endif; ?>
 
-        <?php if (!isset($message)): ?>
-            <?php
-            // Get current UTC time (to be converted on client side)
-            $currentDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
-            // Calculate maximum date (3 months from now) for security
-            $maxDateTime = (new DateTime('now', new DateTimeZone('UTC')))->add(new DateInterval('P3M'))->format('Y-m-d\TH:i:s');
-            ?>
+        <?php if (!$state->hasMessage()): ?>
             <form id="passwordForm">
                 <div class="form-group">
-                    <label for="datetime"><?php echo h($t->unlockLabel); ?> <span style="color: #8b949e; font-weight: normal;"><?php echo h($t->localTimeNote); ?></span>:</label>
+                    <label for="datetime"><?php echo h($t->unlockLabel); ?> <span class="label-note"><?php echo h($t->localTimeNote); ?></span>:</label>
                     <div class="datetime-wrapper">
-                        <input type="datetime-local" id="datetime" name="datetime" required max="<?php echo $maxDateTime; ?>" onclick="this.showPicker()" data-utc-now="<?php echo $currentDateTime; ?>">
+                        <input type="datetime-local" id="datetime" name="datetime" required max="<?php echo $config->maxDateTime; ?>" onclick="this.showPicker()" data-utc-now="<?php echo $config->currentDateTime; ?>">
                         <button type="button" class="calendar-btn" onclick="document.getElementById('datetime').showPicker()">
-                            <img src="<?php echo $iconPath; ?>" alt="Calendar" width="20" height="20">
+                            <img src="<?php echo ViewConfiguration::ICON_PATH; ?>" alt="Calendar" width="20" height="20">
                         </button>
                     </div>
                 </div>
@@ -168,16 +130,16 @@ function h(string $str): string
                 <li><?php echo h($t->feature2); ?></li>
             </ul>
             <div class="footer-links">
-                <a href="https://github.com/mimimiku778/time-locked-password-php" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://github.com/mimimiku778/time-locked-password-php" target="_blank">GitHub</a>
                 <span>MIT License</span>
             </div>
-            <p style="font-size: 12px; color: #6b7280; margin-top: 10px;">
+            <p class="footer-disclaimer">
                 Experimental tool. No warranty. Use at your own risk. Do not use for critical data.
             </p>
         </div>
     </footer>
 
-    <script src="<?php echo $jsPath; ?>?v=<?php echo $jsVersion; ?>"></script>
+    <script src="<?php echo ViewConfiguration::JS_PATH; ?>?v=<?php echo $config->jsVersion; ?>"></script>
 </body>
 
 </html>
