@@ -27,8 +27,9 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^$ index.php [L]
 
-# Block access to all files except allowed ones
+# Block access to existing files except allowed ones
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteCond %{REQUEST_FILENAME} !^.*\.(css|js|svg|ico|png)$
 RewriteCond %{REQUEST_URI} !^/$
 RewriteCond %{REQUEST_URI} !^/index\.php$
-RewriteRule ^(.*)$ - [F,L]
+RewriteRule ^ - [R=404,L]
