@@ -1,25 +1,25 @@
-# 時間制限付きパスワード生成サービス
+# Time-Locked Password Generator Service
 
-## 概要
-指定した日時まで復号できないパスワードを生成するシンプルなWebサービスです。
+## Overview
+A simple web service that generates passwords that cannot be decrypted until a specified date and time.
 
-## 使い方
-1. **パスワード生成**
-   - 復号可能な日時を指定
-   - システムがランダムパスワード（16文字）を生成
-   - 暗号化されたURLが発行される
+## How to Use
+1. **Password Generation**
+   - Specify the date and time when decryption becomes available
+   - System generates a random password (16 characters)
+   - An encrypted URL is issued
 
-2. **パスワード復号**
-   - 生成されたURLにアクセス
-   - 指定日時以降になると自動的にパスワードが表示される
+2. **Password Decryption**
+   - Access the generated URL
+   - Password is automatically displayed after the specified date and time
 
-## 特徴
-- **データベース不要**: 全情報を暗号化文字列に含める
-- **時間制限**: 指定日時前は復号不可
-- **暗号化**: AES-256-CBC による暗号化
-- **改ざん防止**: HMAC-SHA256 による完全性保証
+## Features
+- **No Database Required**: All information is contained in the encrypted string
+- **Time Restriction**: Cannot be decrypted before the specified date and time
+- **Encryption**: AES-256-CBC encryption
+- **Tamper Protection**: Integrity guaranteed by HMAC-SHA256
 
-## 構成
-- **PasswordManager.php**: パスワード生成・暗号化・復号
-- **StringCryptor.php**: 暗号化処理
-- **index.php**: Webインターフェース
+## Components
+- **PasswordManager.php**: Password generation, encryption, and decryption
+- **StringCryptor.php**: Encryption processing
+- **index.php**: Web interface
