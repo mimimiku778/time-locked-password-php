@@ -52,7 +52,10 @@ function h(string $str): string
 
 // Initialize configuration and state
 $config = new ViewConfiguration();
-$state = new ViewState(new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY));
+$state = new ViewState(
+    new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY),
+    new PasswordManager('your-secret-hkdf-key-here-replace', 'your-secret-openssl-key-here-replace')
+);
 
 $t = Translation::getObject();
 

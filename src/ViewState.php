@@ -5,8 +5,10 @@
  */
 class ViewState
 {
+
     public function __construct(
         private PasswordManager $passwordManager,
+        private PasswordManager $passwordManagerDefault,
         public ?string $message = null,
         public ?string $messageType = null,
         public ?string $decryptedPassword = null,
@@ -44,6 +46,7 @@ class ViewState
 
     /**
      * Handle password decryption and set appropriate state
+     * If primary decryption fails, attempt fallback using the default manager.
      */
     public function handleDecryption(?string $encryptedData): void
     {
@@ -54,9 +57,18 @@ class ViewState
         $result = $this->passwordManager->decryptPassword($encryptedData);
 
         if (isset($result['error'])) {
+            // Try fallback decryption
+            $fallbackResult = $this->passwordManagerDefault->decryptPassword($encryptedData);
+            if (!isset($fallbackResult['error'])) {
+                // Fallback succeeded
+                $this->setSuccess($fallbackResult['password'], $fallbackResult['unlock_time'] ?? null);
+                return;
+            }
+            // Both failed: keep the first error
             $this->setError($result['error'], $result['unlock_time'] ?? null);
-        } else {
-            $this->setSuccess($result['password'], $result['unlock_time'] ?? null);
+            return;
         }
+
+        $this->setSuccess($result['password'], $result['unlock_time'] ?? null);
     }
 }
