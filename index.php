@@ -2,16 +2,34 @@
 // Time-locked Password Management System
 // Simple and clean architecture
 
+// Prevent caching - always fetch from server
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // Set timezone to UTC (all server-side processing is based on UTC)
 date_default_timezone_set('UTC');
 
-require_once 'src/PasswordManager.php';
+// File paths and configuration
+$baseDir = __DIR__;
+$passwordManagerPath = 'src/PasswordManager.php';
+$secretsPath = 'secrets.php';
+$secretsExamplePath = 'secrets.example.php';
+$cssPath = 'assets/style.css';
+$jsPath = 'assets/script.js';
+$iconPath = 'assets/calendar.svg';
+
+// Get file modification times for cache busting
+$cssVersion = filemtime($baseDir . '/' . $cssPath);
+$jsVersion = filemtime($baseDir . '/' . $jsPath);
+
+require_once $passwordManagerPath;
 
 // Load secrets
-if (file_exists(__DIR__ . '/secrets.php')) {
-    require_once 'secrets.php';
+if (file_exists($baseDir . '/' . $secretsPath)) {
+    require_once $secretsPath;
 } else {
-    require_once 'secrets.example.php';
+    require_once $secretsExamplePath;
 }
 $hkdfKey = Secrets::HKDF_KEY;
 $opensslKey = Secrets::OPENSSL_KEY;
@@ -69,7 +87,7 @@ if (isset($_GET['data'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time-locked Password Service</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="<?php echo $cssPath; ?>?v=<?php echo $cssVersion; ?>">
 </head>
 <body>
     <div class="container">
@@ -98,7 +116,7 @@ if (isset($_GET['data'])) {
                     <div class="datetime-wrapper">
                         <input type="datetime-local" id="datetime" name="datetime" required onclick="this.showPicker()" data-utc-now="<?php echo $currentDateTime; ?>">
                         <button type="button" class="calendar-btn" onclick="document.getElementById('datetime').showPicker()">
-                            <img src="assets/calendar.svg" alt="Calendar" width="20" height="20">
+                            <img src="<?php echo $iconPath; ?>" alt="Calendar" width="20" height="20">
                         </button>
                     </div>
                 </div>
@@ -109,6 +127,6 @@ if (isset($_GET['data'])) {
         <div id="result"></div>
     </div>
 
-    <script src="assets/script.js"></script>
+    <script src="<?php echo $jsPath; ?>?v=<?php echo $jsVersion; ?>"></script>
 </body>
 </html>
