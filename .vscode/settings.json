@@ -1,0 +1,4 @@
+{
+  "git.generateCommitMessagePrompt": "Write a concise commit message in English that describes the changes made.",
+  "git.useEditorAsCommitInput": false
+}

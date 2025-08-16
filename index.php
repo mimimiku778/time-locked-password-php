@@ -5,7 +5,7 @@
 // Set timezone to UTC (all server-side processing is based on UTC)
 date_default_timezone_set('UTC');
 
-require_once 'PasswordManager.php';
+require_once 'src/PasswordManager.php';
 
 // Configuration - in production, use environment variables
 $hkdfKey = hash('sha256', $_ENV['HKDF_KEY'] ?? 'your-secret-hkdf-key-here');
