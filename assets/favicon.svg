@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E6C068;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M8 14V10C8 5.6 11.6 2 16 2C20.4 2 24 5.6 24 10V14" 
+        stroke="url(#brassGradient)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <rect x="6" y="14" width="20" height="14" rx="2" 
+        fill="url(#brassGradient)" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="16" cy="21" r="2" fill="#2C1810"/>
+  <line x1="16" y1="23" x2="16" y2="26" stroke="#2C1810" stroke-width="2" stroke-linecap="round"/>
+</svg>

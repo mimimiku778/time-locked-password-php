@@ -91,14 +91,15 @@ document.getElementById('passwordForm')?.addEventListener('submit', async functi
             resultDiv.className = 'success';
             resultDiv.innerHTML = `
                 <strong>Generated Password:</strong><br>
-                <div class="url-box">${data.password}
-                    <button class="copy-btn" onclick="copyToClipboard('${data.password}')">Copy Password</button>
-                </div>
+                <div class="url-box">${data.password}</div>
+                <button class="copy-btn" onclick="copyToClipboard('${data.password}')">Copy Password</button>
                 
+                <div style="margin-top: 30px;">
                 <strong>Decrypt URL:</strong><br>
                 <div class="url-box">
                     <a href="${data.decrypt_url}" class="decrypt-link" target="_blank">${data.decrypt_url}</a>
-                    <button class="copy-btn" onclick="copyToClipboard('${data.decrypt_url}')">Copy URL</button>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard('${data.decrypt_url}')">Copy URL</button>
                 </div>
                 
                 <small>Unlock time: ${localUnlockTime}</small>
