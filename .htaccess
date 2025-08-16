@@ -10,6 +10,9 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^$ index.php [L]
 
+# Allow Let's Encrypt ACME challenge
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+
 # Block access to all files except allowed ones
 RewriteCond %{REQUEST_FILENAME} !^.*\.(css|js|svg|ico)$
 RewriteCond %{REQUEST_URI} !^/$
