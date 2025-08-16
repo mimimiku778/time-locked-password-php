@@ -1,0 +1,7 @@
+services:
+  app:
+    build: ./docker
+    ports:
+      - "${PORT:-10000}:80"
+    volumes:
+      - .:/var/www/html
