@@ -7,11 +7,13 @@ A simple web service that generates passwords that cannot be decrypted until a s
 1. **Password Generation**
    - Specify the date and time when decryption becomes available
    - System generates a random password (16 characters)
-   - An encrypted URL is issued
-
+   - The generated password is shown ONLY ONCE at this moment (please copy and store it now)
+   - An encrypted URL is issued that can later reveal the password after the unlock time
+   - Note: If you close the page now without copying, you cannot see the password again until the scheduled unlock time
 2. **Password Decryption**
    - Access the generated URL
-   - Password is automatically displayed after the specified date and time
+   - Before the specified date/time: the password cannot be displayed
+   - After the specified date/time: the password is revealed again
 
 ## Features
 - **No Database Required**: All information is contained in the encrypted string
@@ -41,11 +43,13 @@ A simple web service that generates passwords that cannot be decrypted until a s
 1. **パスワード生成**
    - 復号が可能になる日時を指定
    - システムがランダムパスワード（16文字）を生成
-   - 暗号化されたURLが発行される
-
+   - このタイミングでパスワードは「一度だけ」表示されます（必ずここでコピーしてください）
+   - 後で指定時刻以降に再表示できる暗号化URLが発行される
+   - ここでページを閉じたりコピーし忘れた場合、指定時刻を過ぎるまで再確認できません
 2. **パスワード復号**
    - 生成されたURLにアクセス
-   - 指定された日時を過ぎると自動的にパスワードが表示される
+   - 指定日時前は表示不可（ロック継続）
+   - 指定日時を過ぎると再度パスワードが表示される
 
 ## 特徴
 - **データベース不要**: すべての情報が暗号化された文字列に含まれる
