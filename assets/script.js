@@ -1,6 +1,15 @@
 // Configuration constants
 const API_ENDPOINT = '';  // Empty string uses current page for API requests
 
+// DOM selectors
+const SELECTORS = {
+    DATETIME_INPUT: 'datetime',
+    MESSAGE_DIV: 'messageDiv',
+    UNLOCK_TIME_DISPLAY: 'unlockTimeDisplay',
+    PASSWORD_FORM: 'passwordForm',
+    RESULT_DIV: 'result'
+};
+
 // Function to convert UTC time to local time (format according to locale)
 function convertUTCToLocal(utcDateTimeString) {
     const utcDate = new Date(utcDateTimeString);
@@ -27,7 +36,7 @@ function convertLocalToUTC(localDateTimeString) {
 
 // Set minimum value for datetime-local input field
 document.addEventListener('DOMContentLoaded', function() {
-    const datetimeInput = document.getElementById('datetime');
+    const datetimeInput = document.getElementById(SELECTORS.DATETIME_INPUT);
     if (datetimeInput) {
         // Get UTC time and convert to local time
         const utcNow = datetimeInput.getAttribute('data-utc-now');
@@ -45,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Convert message time to local format
-    const messageDiv = document.getElementById('messageDiv');
+    const messageDiv = document.getElementById(SELECTORS.MESSAGE_DIV);
     if (messageDiv) {
         const unlockTime = messageDiv.getAttribute('data-unlock-time');
         if (unlockTime) {
@@ -53,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const localUnlockTime = convertUTCToLocal(unlockTime);
             
             // For error messages, display unlock time
-            const unlockTimeDisplay = document.getElementById('unlockTimeDisplay');
+            const unlockTimeDisplay = document.getElementById(SELECTORS.UNLOCK_TIME_DISPLAY);
             if (unlockTimeDisplay) {
                 unlockTimeDisplay.innerHTML = `Unlock time: <strong>${localUnlockTime}</strong>`;
             }
@@ -61,11 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-document.getElementById('passwordForm')?.addEventListener('submit', async function(e) {
+document.getElementById(SELECTORS.PASSWORD_FORM)?.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     // Convert local time to UTC and send to server
-    const localDateTime = document.getElementById('datetime').value;
+    const localDateTime = document.getElementById(SELECTORS.DATETIME_INPUT).value;
     const utcDateTime = convertLocalToUTC(localDateTime);
     
     const formData = new FormData();
@@ -79,7 +88,7 @@ document.getElementById('passwordForm')?.addEventListener('submit', async functi
         });
         
         const data = await response.json();
-        const resultDiv = document.getElementById('result');
+        const resultDiv = document.getElementById(SELECTORS.RESULT_DIV);
         
         if (data.error) {
             resultDiv.className = 'error';
@@ -108,7 +117,7 @@ document.getElementById('passwordForm')?.addEventListener('submit', async functi
         
         resultDiv.style.display = 'block';
     } catch (error) {
-        const resultDiv = document.getElementById('result');
+        const resultDiv = document.getElementById(SELECTORS.RESULT_DIV);
         resultDiv.className = 'error';
         resultDiv.innerHTML = 'An error occurred';
         resultDiv.style.display = 'block';
