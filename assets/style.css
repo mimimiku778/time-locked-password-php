@@ -113,6 +113,14 @@ button:hover {
     font-family: monospace;
     color: #58a6ff;
 }
+.decrypt-link {
+    color: #58a6ff;
+    text-decoration: none;
+}
+.decrypt-link:hover {
+    color: #58a6ff;
+    text-decoration: underline;
+}
 .copy-btn {
     background: #1f6feb;
     color: white;
