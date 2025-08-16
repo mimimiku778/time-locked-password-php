@@ -2,7 +2,7 @@
 // Time-locked Password Management System
 // Simple and clean architecture
 
-// タイムゾーンをUTCに設定（サーバー側処理は全てUTC基準）
+// Set timezone to UTC (all server-side processing is based on UTC)
 date_default_timezone_set('UTC');
 
 require_once 'PasswordManager.php';
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
         try {
-            // クライアントから送信された日時をUTCとして処理
+            // Process datetime sent from client as UTC
             $unlockDateTime = new DateTime($_POST['datetime'], new DateTimeZone('UTC'));
             $password = $passwordManager->generateRandomPassword();
             $encryptedData = $passwordManager->encryptPassword($password, $unlockDateTime->format('Y-m-d H:i:s'));
@@ -43,7 +43,7 @@ if (isset($_GET['data'])) {
     
     if (isset($result['error'])) {
         if (isset($result['unlock_time'])) {
-            // UTC時刻をクライアント側で変換するため、メッセージは簡潔に
+            // Keep message concise as UTC time will be converted on client side
             $message = $result['error'];
             $unlockTimeUTC = $result['unlock_time'];
         } else {
@@ -59,7 +59,7 @@ if (isset($_GET['data'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -224,7 +224,7 @@ if (isset($_GET['data'])) {
         
         <?php if (!isset($message)): ?>
             <?php
-                // 現在のUTC時刻を取得（クライアント側で変換）
+                // Get current UTC time (to be converted on client side)
                 $currentDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
             ?>
             <form id="passwordForm">
@@ -251,10 +251,10 @@ if (isset($_GET['data'])) {
     </div>
 
     <script>
-        // UTC時刻をローカル時刻に変換する関数（ロケールに応じた形式）
+        // Function to convert UTC time to local time (format according to locale)
         function convertUTCToLocal(utcDateTimeString) {
             const utcDate = new Date(utcDateTimeString);
-            // ブラウザのロケールに応じた日時表示
+            // Display date and time according to browser locale
             const options = {
                 year: 'numeric',
                 month: 'long',
@@ -265,25 +265,25 @@ if (isset($_GET['data'])) {
                 second: '2-digit',
                 hour12: false
             };
-            // 日本語環境では「2025年8月19日 火曜日 21:57:00」のような形式になる
+            // In Japanese environment, format would be like "2025年8月19日 火曜日 21:57:00"
             return utcDate.toLocaleString(undefined, options);
         }
         
-        // ローカル時刻をUTCに変換する関数
+        // Function to convert local time to UTC
         function convertLocalToUTC(localDateTimeString) {
             const localDate = new Date(localDateTimeString);
             return localDate.toISOString();
         }
         
-        // datetime-local入力フィールドの最小値を設定
+        // Set minimum value for datetime-local input field
         document.addEventListener('DOMContentLoaded', function() {
             const datetimeInput = document.getElementById('datetime');
             if (datetimeInput) {
-                // UTC時刻を取得してローカル時刻に変換
+                // Get UTC time and convert to local time
                 const utcNow = datetimeInput.getAttribute('data-utc-now');
                 const now = new Date(utcNow);
                 
-                // datetime-local形式に変換（YYYY-MM-DDTHH:MM）
+                // Convert to datetime-local format (YYYY-MM-DDTHH:MM)
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
                 const day = String(now.getDate()).padStart(2, '0');
@@ -294,15 +294,15 @@ if (isset($_GET['data'])) {
                 datetimeInput.setAttribute('min', localDateTime);
             }
             
-            // メッセージの時刻をローカル形式に変換
+            // Convert message time to local format
             const messageDiv = document.getElementById('messageDiv');
             if (messageDiv) {
                 const unlockTime = messageDiv.getAttribute('data-unlock-time');
                 if (unlockTime) {
-                    // UTC時刻をローカル形式に変換
+                    // Convert UTC time to local format
                     const localUnlockTime = convertUTCToLocal(unlockTime);
                     
-                    // エラーメッセージの場合、unlock時刻を表示
+                    // For error messages, display unlock time
                     const unlockTimeDisplay = document.getElementById('unlockTimeDisplay');
                     if (unlockTimeDisplay) {
                         unlockTimeDisplay.innerHTML = `Unlock time: <strong>${localUnlockTime}</strong>`;
@@ -314,7 +314,7 @@ if (isset($_GET['data'])) {
         document.getElementById('passwordForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // ローカル時刻をUTCに変換してサーバーに送信
+            // Convert local time to UTC and send to server
             const localDateTime = document.getElementById('datetime').value;
             const utcDateTime = convertLocalToUTC(localDateTime);
             
@@ -335,7 +335,7 @@ if (isset($_GET['data'])) {
                     resultDiv.className = 'error';
                     resultDiv.innerHTML = data.error;
                 } else {
-                    // UTC時刻をローカル時刻に変換して表示
+                    // Convert UTC time to local time for display
                     const localUnlockTime = convertUTCToLocal(data.unlock_time);
                     
                     resultDiv.className = 'success';
