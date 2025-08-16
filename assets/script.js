@@ -94,7 +94,7 @@ document.getElementById('passwordForm')?.addEventListener('submit', async functi
                 
                 <strong>Decrypt URL:</strong><br>
                 <div class="url-box">
-                    <a href="${data.decrypt_url}" class="decrypt-link">${data.decrypt_url}</a>
+                    <a href="${data.decrypt_url}" class="decrypt-link" target="_blank">${data.decrypt_url}</a>
                     <button class="copy-btn" onclick="copyToClipboard('${data.decrypt_url}')">Copy URL</button>
                 </div>
                 
