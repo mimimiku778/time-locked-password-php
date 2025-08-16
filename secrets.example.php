@@ -4,6 +4,6 @@
 
 class Secrets
 {
-    public const HKDF_KEY = 'your-secret-hkdf-key-here-replace-with-64-char-hex';
-    public const OPENSSL_KEY = 'your-secret-openssl-key-here-replace-with-64-char-hex';
+    public const HKDF_KEY = 'your-secret-hkdf-key-here-replace';
+    public const OPENSSL_KEY = 'your-secret-openssl-key-here-replace';
 }

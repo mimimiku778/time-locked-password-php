@@ -1,11 +1,13 @@
-# Deny sensitive files
-<FilesMatch "\.(php|md|txt|json|lock|yml|yaml|env|log)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+# Deny all files by default
+Order deny,allow
+Deny from all
 
-# Allow index.php specifically
+# Allow only specific files
 <Files "index.php">
-    Order allow,deny
     Allow from all
 </Files>
+
+# Allow only safe asset files
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$">
+    Allow from all
+</FilesMatch>
