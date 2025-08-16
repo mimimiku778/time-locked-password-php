@@ -7,9 +7,14 @@ date_default_timezone_set('UTC');
 
 require_once 'src/PasswordManager.php';
 
-// Configuration - in production, use environment variables
-$hkdfKey = hash('sha256', $_ENV['HKDF_KEY'] ?? 'your-secret-hkdf-key-here');
-$opensslKey = hash('sha256', $_ENV['OPENSSL_KEY'] ?? 'your-secret-openssl-key-here');
+// Load secrets
+if (file_exists(__DIR__ . '/secrets.php')) {
+    require_once 'secrets.php';
+} else {
+    require_once 'secrets.example.php';
+}
+$hkdfKey = Secrets::HKDF_KEY;
+$opensslKey = Secrets::OPENSSL_KEY;
 
 $passwordManager = new PasswordManager($hkdfKey, $opensslKey);
 

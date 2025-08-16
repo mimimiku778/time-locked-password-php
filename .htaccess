@@ -1,0 +1,11 @@
+# Deny sensitive files
+<FilesMatch "\.(php|md|txt|json|lock|yml|yaml|env|log)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Allow index.php specifically
+<Files "index.php">
+    Order allow,deny
+    Allow from all
+</Files>
