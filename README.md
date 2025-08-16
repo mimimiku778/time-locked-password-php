@@ -1,4 +1,4 @@
-# Time-Locked Password Generator Service
+# Password Generator That Shows Passwords at Scheduled Time
 
 ## Overview
 A simple web service that generates passwords that cannot be decrypted until a specified date and time.
@@ -16,6 +16,7 @@ A simple web service that generates passwords that cannot be decrypted until a s
 ## Features
 - **No Database Required**: All information is contained in the encrypted string
 - **Time Restriction**: Cannot be decrypted before the specified date and time
+- **Maximum Duration Limit**: Future unlock times are limited to 3 months maximum for security and practical reasons
 - **Encryption**: AES-256-CBC encryption
 - **Tamper Protection**: Integrity guaranteed by HMAC-SHA256
 
@@ -31,7 +32,7 @@ A simple web service that generates passwords that cannot be decrypted until a s
 
 ---
 
-# タイムロック式パスワード生成サービス
+# 時間になったら見れるパスワード生成サービス
 
 ## 概要
 指定された日時まで復号化できないパスワードを生成するシンプルなWebサービスです。
@@ -49,6 +50,7 @@ A simple web service that generates passwords that cannot be decrypted until a s
 ## 特徴
 - **データベース不要**: すべての情報が暗号化された文字列に含まれる
 - **時間制限**: 指定された日時前には復号化できない
+- **最大期間制限**: セキュリティと実用性の理由により、将来のアンロック時間は最大3ヶ月に制限されます
 - **暗号化**: AES-256-CBC暗号化
 - **改ざん防止**: HMAC-SHA256による完全性保証
 

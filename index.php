@@ -86,12 +86,12 @@ if (isset($_GET['data'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time-locked Password Service</title>
+    <title>Password Generator That Shows Passwords at Scheduled Time</title>
     <link rel="stylesheet" href="<?php echo $cssPath; ?>?v=<?php echo $cssVersion; ?>">
 </head>
 <body>
     <div class="container">
-        <h1>🔒 Time-locked Password Generator</h1>
+        <h1><a href="/">🔒 Password Generator That Shows Passwords at Scheduled Time</a></h1>
         
         <?php if (isset($message)): ?>
             <div class="message <?php echo $messageType; ?>" id="messageDiv" data-unlock-time="<?php echo isset($unlockTimeUTC) ? $unlockTimeUTC : ''; ?>">
@@ -109,12 +109,14 @@ if (isset($_GET['data'])) {
             <?php
                 // Get current UTC time (to be converted on client side)
                 $currentDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+                // Calculate maximum date (3 months from now) for security
+                $maxDateTime = (new DateTime('now', new DateTimeZone('UTC')))->add(new DateInterval('P3M'))->format('Y-m-d\TH:i:s');
             ?>
             <form id="passwordForm">
                 <div class="form-group">
                     <label for="datetime">Unlock Date & Time <span style="color: #8b949e; font-weight: normal;">(your local time)</span>:</label>
                     <div class="datetime-wrapper">
-                        <input type="datetime-local" id="datetime" name="datetime" required onclick="this.showPicker()" data-utc-now="<?php echo $currentDateTime; ?>">
+                        <input type="datetime-local" id="datetime" name="datetime" required max="<?php echo $maxDateTime; ?>" onclick="this.showPicker()" data-utc-now="<?php echo $currentDateTime; ?>">
                         <button type="button" class="calendar-btn" onclick="document.getElementById('datetime').showPicker()">
                             <img src="<?php echo $iconPath; ?>" alt="Calendar" width="20" height="20">
                         </button>
