@@ -1,13 +1,17 @@
-# Deny all files by default
-Order deny,allow
-Deny from all
+# Enable rewrite engine
+RewriteEngine On
 
-# Allow only specific files
-<Files "index.php">
-    Allow from all
-</Files>
+# Redirect /index.php to / (clean URL)
+RewriteCond %{THE_REQUEST} \s/+index\.php[\s?] [NC]
+RewriteRule ^index\.php$ / [R=301,L]
 
-# Allow only safe asset files
-<FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$">
-    Allow from all
-</FilesMatch>
+# Route root / to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^$ index.php [L]
+
+# Block access to all files except allowed ones
+RewriteCond %{REQUEST_FILENAME} !^.*\.(css|js|svg|ico)$
+RewriteCond %{REQUEST_URI} !^/$
+RewriteCond %{REQUEST_URI} !^/index\.php$
+RewriteRule ^(.*)$ - [F,L]

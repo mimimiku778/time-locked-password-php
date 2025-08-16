@@ -1,3 +1,6 @@
+// Configuration constants
+const API_ENDPOINT = '';  // Empty string uses current page for API requests
+
 // Function to convert UTC time to local time (format according to locale)
 function convertUTCToLocal(utcDateTimeString) {
     const utcDate = new Date(utcDateTimeString);
@@ -70,7 +73,7 @@ document.getElementById('passwordForm')?.addEventListener('submit', async functi
     formData.append('datetime', utcDateTime);
     
     try {
-        const response = await fetch('', {
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             body: formData
         });

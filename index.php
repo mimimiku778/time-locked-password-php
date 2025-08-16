@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'password' => $password,
                 'encrypted_data' => $encryptedData,
                 'unlock_time' => $unlockDateTime->format('Y-m-d\TH:i:s\Z'),
-                'decrypt_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '?data=' . $encryptedData
+                'decrypt_url' => 'http://' . $_SERVER['HTTP_HOST'] . '/?data=' . $encryptedData
             ]);
         } catch (Exception $e) {
             echo json_encode(['error' => 'Invalid datetime format']);
