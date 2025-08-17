@@ -1,5 +1,5 @@
 <?php
-header('cache-control: private');
+header('Cache-Control: no-store');
 date_default_timezone_set('UTC');
 
 // Load secrets class
@@ -89,7 +89,6 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
     <meta name="twitter:description" content="<?php echo h($t->twitterDescription); ?>">
     <meta name="twitter:image" content="http://<?php echo $_SERVER['HTTP_HOST']; ?>/assets/ogp.png">
 
-
     <?php if (Secrets::get('GA4_ID')): ?>
         <!-- Google Analytics 4 -->
         <?php echo Tracking::renderGA(Secrets::get('GA4_ID')); ?>
@@ -100,13 +99,8 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
 
 <body>
     <div class="container">
-        <?php if ($state->hasMessage() || $generatorState->isGenerated()): ?>
-            <h1><a href="/" id="pageTitle" target="_blank"><?php echo h($t->pageTitle); ?></a></h1>
-        <?php else: ?>
-            <h1><?php echo h($t->pageTitle); ?></h1>
-        <?php endif; ?>
-
         <?php if (!$state->hasMessage() && !$generatorState->isGenerated()): ?>
+            <h1><?php echo h($t->pageTitle); ?></h1>
             <form id="passwordForm" method="POST" action="/">
                 <div class="form-group">
                     <label for="datetime"><?php echo h($t->unlockLabel); ?> <span class="label-note"><?php echo h($t->localTimeNote); ?></span>:</label>
@@ -124,7 +118,12 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
         <?php endif; ?>
 
         <?php if ($generatorState->isGenerated()): ?>
+            <h1><a href="/" id="pageTitle" target="_blank"><?php echo h($t->pageTitle); ?></a></h1>
             <div id="result" class="success" style="display: block;">
+                <div style="background-color: #fff3cd; color: #856404; padding: 12px; border: 1px solid #ffeaa7; border-radius: 4px; margin-bottom: 20px;">
+                    <?php echo h($t->passwordWarning); ?>
+                </div>
+
                 <strong><?php echo h($t->generatedPasswordLabel); ?></strong><br>
                 <div class="url-box"><?php echo h($generatorState->generatedPassword); ?></div>
                 <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->generatedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
@@ -140,6 +139,7 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
                 <small><?php echo h($t->unlockTimeLabel); ?> <span id="unlockTimeLocal" data-utc-time="<?php echo $generatorState->unlockTimeUTC; ?>"></span></small>
             </div>
         <?php elseif ($generatorState->hasError()): ?>
+            <h1><a href="/" id="pageTitle"><?php echo h($t->pageTitle); ?></a></h1>
             <div id="result" class="error" style="display: block;">
                 <?php echo h($generatorState->errorMessage); ?>
             </div>
@@ -148,6 +148,7 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
         <?php endif; ?>
 
         <?php if ($state->hasMessage()): ?>
+            <h1><a href="/" id="pageTitle"><?php echo h($t->pageTitle); ?></a></h1>
             <div class="message <?php echo $state->messageType; ?>" id="messageDiv" data-unlock-time="<?php echo $state->unlockTimeUTC ?? ''; ?>">
                 <span id="messageText"><?php echo h($state->message); ?></span>
                 <?php if ($state->unlockTimeUTC && $state->messageType === 'error'): ?>
@@ -166,6 +167,7 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
             <ul id="serviceFeatures">
                 <li><?php echo h($t->feature1); ?></li>
                 <li><?php echo h($t->feature2); ?></li>
+                <li><?php echo h($t->feature3); ?></li>
             </ul>
             <div class="footer-links">
                 <a href="https://github.com/mimimiku778/time-locked-password-php" target="_blank">GitHub</a>

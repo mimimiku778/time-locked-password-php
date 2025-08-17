@@ -21,6 +21,8 @@ class EnglishTranslation extends TranslationObject {
         $this->serviceDescription = 'Generate time-locked passwords that decrypt only at your specified time. Perfect for scheduled releases and time-sensitive access control.';
         $this->feature1 = 'Password is shown once when generated';
         $this->feature2 = 'Access Decrypt URL after scheduled time to view password again';
+        $this->feature3 = 'No-log policy - Zero server-side data storage';
+        $this->passwordWarning = '⚠️ Important: Neither the password nor the Decrypt URL can be regenerated. If you close this page without saving the URL, they will be lost forever.';
     }
     
     public function getLanguageCode(): string {

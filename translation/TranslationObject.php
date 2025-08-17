@@ -18,6 +18,8 @@ abstract class TranslationObject {
     public string $serviceDescription;
     public string $feature1;
     public string $feature2;
+    public string $feature3;
+    public string $passwordWarning;
     
     abstract public function getLanguageCode(): string;
 }

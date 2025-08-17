@@ -21,6 +21,8 @@ class JapaneseTranslation extends TranslationObject {
         $this->serviceDescription = '指定した時刻以降に復号される時間ロック付きパスワードを生成。予定リリース、指定時間までのアクセス制御に最適。';
         $this->feature1 = 'パスワードは生成時に一度だけ表示';
         $this->feature2 = 'Decrypt URLに指定時刻以降にアクセスすると再びパスワードを表示';
+        $this->feature3 = 'ノーログ - サーバーにデータを一切保存しません';
+        $this->passwordWarning = '⚠️ 重要: パスワードとDecrypt URLは再生成できません。URLを保存せずにページを閉じると二度と復元できません。';
     }
     
     public function getLanguageCode(): string {
