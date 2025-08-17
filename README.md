@@ -20,7 +20,7 @@ This is the stable production deployment (not just a demo).
    - After the specified date/time: the password is revealed again
 
 ## Features
-- **No Database Required**: All information is contained in the encrypted string
+- **No Database Required**: All information is contained in the encrypted URL parameters
 - **Time Restriction**: Cannot be decrypted before the specified date and time
 - **Maximum Duration Limit**: Future unlock times are limited to 3 months maximum for security and practical reasons
 - **Encryption**: AES-256-CBC encryption
@@ -31,17 +31,54 @@ This is the stable production deployment (not just a demo).
 ## Use Cases
 - **Contest/Event Reveals**: Generate passwords for contest results or surprise announcements that unlock at predetermined times
 - **Self-Imposed Access Restriction**: Set this generated password as your account password (without saving it), effectively restricting your own access to social media or other services until a specific date
-- **Planned System Maintenance**: Create temporary passwords that become active only during scheduled maintenance windows
 
-## Components
-- **PasswordManager.php**: Password generation, encryption, and decryption
-- **StringCryptor.php**: Encryption processing
-- **index.php**: Web interface
+## Development Setup & Local Usage
+
+### Requirements
+- Docker and Docker Compose
+- OR PHP 8.0+ with Apache
+
+### Quick Start with Docker (Recommended)
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/time-locked-password-php.git
+   cd time-locked-password-php
+   ```
+
+2. **Run with Docker Compose**
+   ```bash
+   docker compose up -d
+   ```
+   Then open http://localhost:10000 in your browser
+   
+   To use a different port:
+   ```bash
+   PORT=8080 docker compose up -d
+   ```
+
+### Deployment
+
+```bash
+# Clone repository to document root
+cd /var/www/html  # or your web server's document root
+git clone https://github.com/yourusername/time-locked-password-php.git .
+
+# Create configuration file
+cp src/config/example.secrets.php src/config/secrets.php
+
+# Generate and set encryption keys
+HKDF_KEY=$(openssl rand -hex 32)
+OPENSSL_KEY=$(openssl rand -hex 32)
+sed -i "s/your-secret-hkdf-key-here-replace/$HKDF_KEY/" src/config/secrets.php
+sed -i "s/your-secret-openssl-key-here-replace/$OPENSSL_KEY/" src/config/secrets.php
+
+# For Google Analytics 4 (optional)
+# sed -i "s/private const string GA4_ID = '';/private const string GA4_ID = 'G-XXXXXXXXXX';/" src/config/secrets.php
+```
 
 ---
 
-# 時間になったら見れるパスワード生成サービス
-
+# タイムロック式パスワードジェネレータ
 ## 概要
 指定された日時まで復号できないパスワードを生成するシンプルなWebサービスです。
 
@@ -62,7 +99,7 @@ This is the stable production deployment (not just a demo).
    - 指定日時を過ぎると再度パスワードが表示される
 
 ## 特徴
-- **データベース不要**: すべての情報が暗号化された文字列に含まれる
+- **データベース不要**: すべての情報が暗号化されたURLパラメータに含まれる
 - **時間制限**: 指定された日時前には復号できない
 - **最大期間制限**: セキュリティと実用性の理由により、将来のアンロック時間は最大3ヶ月に制限されます
 - **暗号化**: AES-256-CBC暗号化
@@ -73,9 +110,47 @@ This is the stable production deployment (not just a demo).
 ## 活用例
 - **コンテスト・イベント発表**: 予め決められた時刻にコンテスト結果やサプライズ発表を行うパスワード生成
 - **自主的アクセス制限**: 生成されたパスワードをアカウントパスワードに設定し（保存せずに）、特定の日付まで自らのSNSなどへのアクセスを制限
-- **計画的システムメンテナンス**: 予定されたメンテナンス時間中にのみ有効になる一時パスワードの作成
 
-## 構成要素
-- **PasswordManager.php**: パスワード生成、暗号化、復号
-- **StringCryptor.php**: 暗号化処理
-- **index.php**: Webインターフェース
+## 開発環境構築・ローカル利用方法
+
+### 必要要件
+- DockerとDocker Compose
+- またはPHP 8.0以上とApache
+
+### Dockerでクイックスタート（推奨）
+1. **リポジトリをクローン**
+   ```bash
+   git clone https://github.com/yourusername/time-locked-password-php.git
+   cd time-locked-password-php
+   ```
+
+2. **Docker Composeで実行**
+   ```bash
+   docker compose up -d
+   ```
+   ブラウザで http://localhost:10000 を開く
+   
+   別のポートを使用する場合：
+   ```bash
+   PORT=8080 docker compose up -d
+   ```
+
+### デプロイ
+
+```bash
+# ドキュメントルート直下でリポジトリをクローン
+cd /var/www/html  # または、あなたのWebサーバーのドキュメントルート
+git clone https://github.com/yourusername/time-locked-password-php.git .
+
+# 設定ファイルの作成
+cp src/config/example.secrets.php src/config/secrets.php
+
+# 暗号化キーの生成と設定ファイルへの書き込み
+HKDF_KEY=$(openssl rand -hex 32)
+OPENSSL_KEY=$(openssl rand -hex 32)
+sed -i "s/your-secret-hkdf-key-here-replace/$HKDF_KEY/" src/config/secrets.php
+sed -i "s/your-secret-openssl-key-here-replace/$OPENSSL_KEY/" src/config/secrets.php
+
+# Google Analytics 4を使用する場合（オプション）
+# sed -i "s/private const string GA4_ID = '';/private const string GA4_ID = 'G-XXXXXXXXXX';/" src/config/secrets.php
+```

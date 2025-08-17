@@ -3,10 +3,10 @@ header('Cache-Control: no-store');
 date_default_timezone_set('UTC');
 
 // Load secrets class
-if (file_exists(__DIR__ . '/secrets.php')) {
-    require_once 'secrets.php';
+if (file_exists(__DIR__ . '/src/config/secrets.php')) {
+    require_once 'src/config/secrets.php';
 } else {
-    require_once 'example.secrets.php';
+    require_once 'src/config/example.secrets.php';
 }
 
 // Load required classes
@@ -14,7 +14,7 @@ require_once 'src/PasswordManager.php';
 require_once 'src/ViewConfiguration.php';
 require_once 'src/ViewState.php';
 require_once 'src/GeneratorViewState.php';
-require_once 'translation/Translation.php';
+require_once 'src/translation/Translation.php';
 require_once 'src/Tracking.php';
 
 // Escape HTML special characters

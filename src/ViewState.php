@@ -12,8 +12,8 @@ class ViewState
     public ?string $unlockTimeUTC = null;
 
     /**
-     * @param PasswordManager[] $passwordManagers Ordered list of password manager instances used for decryption.
-     *               　　　　　　　　　　           Decryption is attempted in this order until one succeeds.
+     * @param PasswordManager[] $passwordManagers Ordered list of password manager instances used for decryption.  
+     * Decryption is attempted in this order until one succeeds.
      */
     public function __construct(
         private array $passwordManagers
