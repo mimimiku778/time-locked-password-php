@@ -119,7 +119,7 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
         <?php if ($generatorState->isGenerated()): ?>
             <h1><a href="/" id="pageTitle" target="_blank"><?php echo h($t->pageTitle); ?></a></h1>
             <div id="result" class="success" style="display: block;">
-                <div style="background-color: #fff3cd; color: #856404; padding: 12px; border: 1px solid #ffeaa7; border-radius: 4px; margin-bottom: 20px;">
+                <div class="warning-box">
                     <?php echo h($t->passwordWarning); ?>
                 </div>
 
