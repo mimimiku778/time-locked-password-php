@@ -3,6 +3,10 @@
 ## Overview
 A simple web service that generates passwords that cannot be decrypted until a specified date and time.
 
+## Production Site
+Production (long-term operated) URL: https://password.openchat-review.me  
+This is the stable production deployment (not just a demo).
+
 ## How to Use
 1. **Password Generation**
    - Specify the date and time when decryption becomes available
@@ -22,6 +26,7 @@ A simple web service that generates passwords that cannot be decrypted until a s
 - **Encryption**: AES-256-CBC encryption
 - **Tamper Protection**: Integrity guaranteed by HMAC-SHA256
 - **GA4 Privacy**: Query parameters are masked in analytics (e.g., `?data=sensitive123` → `?data=data`)
+- **Auto Language Detection**: UI automatically switches English/Japanese according to the browser language (currently en / ja implemented)
 
 ## Use Cases
 - **Contest/Event Reveals**: Generate passwords for contest results or surprise announcements that unlock at predetermined times
@@ -39,6 +44,10 @@ A simple web service that generates passwords that cannot be decrypted until a s
 
 ## 概要
 指定された日時まで復号できないパスワードを生成するシンプルなWebサービスです。
+
+## 本番サイト
+本番稼働URL（長期運用予定）: https://password.openchat-review.me  
+デモではなく安定運用中の本番環境です。
 
 ## 使用方法
 1. **パスワード生成**
@@ -59,6 +68,7 @@ A simple web service that generates passwords that cannot be decrypted until a s
 - **暗号化**: AES-256-CBC暗号化
 - **改ざん防止**: HMAC-SHA256による完全性保証
 - **GA4プライバシー**: クエリパラメータをアナリティクスでマスク（例：`?data=sensitive123` → `?data=data`）
+- **自動言語判別**: ブラウザの言語設定に応じて英語 / 日本語へ自動切替（現状 en / ja 対応）
 
 ## 活用例
 - **コンテスト・イベント発表**: 予め決められた時刻にコンテスト結果やサプライズ発表を行うパスワード生成

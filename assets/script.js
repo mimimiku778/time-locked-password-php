@@ -1,5 +1,3 @@
-// Configuration constants
-const API_ENDPOINT = '';  // Empty string uses current page for API requests
 
 // DOM selectors
 const SELECTORS = {
@@ -28,11 +26,6 @@ function convertUTCToLocal(utcDateTimeString) {
     return utcDate.toLocaleString(undefined, options);
 }
 
-// Function to convert local time to UTC
-function convertLocalToUTC(localDateTimeString) {
-    const localDate = new Date(localDateTimeString);
-    return localDate.toISOString();
-}
 
 // Set minimum value for datetime-local input field
 document.addEventListener('DOMContentLoaded', function() {
@@ -68,59 +61,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+    
+    // Display unlock time for generated password
+    const unlockTimeLocal = document.getElementById('unlockTimeLocal');
+    if (unlockTimeLocal) {
+        const utcTime = unlockTimeLocal.getAttribute('data-utc-time');
+        if (utcTime) {
+            const localTime = convertUTCToLocal(utcTime);
+            unlockTimeLocal.innerHTML = `Unlock time: ${localTime}`;
+        }
+    }
 });
 
-document.getElementById(SELECTORS.PASSWORD_FORM)?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    // Convert local time to UTC and send to server
-    const localDateTime = document.getElementById(SELECTORS.DATETIME_INPUT).value;
-    const utcDateTime = convertLocalToUTC(localDateTime);
-    
-    const formData = new FormData();
-    formData.append('action', 'generate');
-    formData.append('datetime', utcDateTime);
-    
-    try {
-        const response = await fetch(API_ENDPOINT, {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        const resultDiv = document.getElementById(SELECTORS.RESULT_DIV);
-        
-        if (data.error) {
-            resultDiv.className = 'error';
-            resultDiv.innerHTML = data.error;
-        } else {
-            // Convert UTC time to local time for display
-            const localUnlockTime = convertUTCToLocal(data.unlock_time);
-            
-            resultDiv.className = 'success';
-            resultDiv.innerHTML = `
-                <strong>Generated Password:</strong><br>
-                <div class="url-box">${data.password}</div>
-                <button class="copy-btn" onclick="copyToClipboard('${data.password}')">Copy Password</button>
-                
-                <div style="margin-top: 30px;">
-                <strong>Decrypt URL:</strong><br>
-                <div class="url-box">
-                    <a href="${data.decrypt_url}" class="decrypt-link" target="_blank">${data.decrypt_url}</a>
-                </div>
-                <button class="copy-btn" onclick="copyToClipboard('${data.decrypt_url}')">Copy URL</button>
-                </div>
-                
-                <small>Unlock time: ${localUnlockTime}</small>
-            `;
-        }
-        
-        resultDiv.style.display = 'block';
-    } catch (error) {
-        const resultDiv = document.getElementById(SELECTORS.RESULT_DIV);
-        resultDiv.className = 'error';
-        resultDiv.innerHTML = 'An error occurred';
-        resultDiv.style.display = 'block';
+// Set timezone value before form submission
+document.getElementById(SELECTORS.PASSWORD_FORM)?.addEventListener('submit', function(e) {
+    // Set the user's timezone
+    const timezoneInput = document.getElementById('timezone');
+    if (timezoneInput) {
+        timezoneInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
 });
 

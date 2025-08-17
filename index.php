@@ -28,33 +28,31 @@ function classConstOrNull(string $class, string $const): mixed
 
 require_once 'src/PasswordManager.php';
 
-// Handle API requests
-(function () {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-        header('Content-Type: application/json; charset=utf-8');
+// Handle form submissions
+$generatedPassword = null;
+$encryptedData = null;
+$unlockTimeUTC = null;
+$decryptUrl = null;
+$errorMessage = null;
 
-        if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
-            try {
-                $passwordManager = new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
+        try {
+            $passwordManager = new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY);
 
-                // Process datetime sent from client as UTC
-                $unlockDateTime = new DateTime($_POST['datetime'], new DateTimeZone('UTC'));
-                $password = $passwordManager->generateRandomPassword();
-                $encryptedData = $passwordManager->encryptPassword($password, $unlockDateTime->format('Y-m-d H:i:s'));
-
-                echo json_encode([
-                    'password' => $password,
-                    'encrypted_data' => $encryptedData,
-                    'unlock_time' => $unlockDateTime->format('Y-m-d\TH:i:s\Z'),
-                    'decrypt_url' => 'http://' . $_SERVER['HTTP_HOST'] . '/?data=' . $encryptedData
-                ]);
-            } catch (Exception) {
-                echo json_encode(['error' => 'Invalid datetime format']);
-            }
+            // Convert local datetime to UTC
+            $localDateTime = new DateTime($_POST['datetime'], new DateTimeZone($_POST['timezone'] ?? 'UTC'));
+            $localDateTime->setTimezone(new DateTimeZone('UTC'));
+            
+            $generatedPassword = $passwordManager->generateRandomPassword();
+            $encryptedData = $passwordManager->encryptPassword($generatedPassword, $localDateTime->format('Y-m-d H:i:s'));
+            $unlockTimeUTC = $localDateTime->format('Y-m-d\TH:i:s\Z');
+            $decryptUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/?data=' . $encryptedData;
+        } catch (Exception $e) {
+            $errorMessage = 'Invalid datetime format';
         }
-        exit;
     }
-})();
+}
 
 require_once 'src/ViewConfiguration.php';
 require_once 'src/ViewState.php';
@@ -114,7 +112,7 @@ $state->handleDecryption($_GET['data'] ?? null);
 
 <body>
     <div class="container">
-        <h1><a href="/" id="pageTitle"><?php echo h($t->pageTitle); ?></a></h1>
+        <h1><a href="/" id="pageTitle" target="_blank"><?php echo h($t->pageTitle); ?></a></h1>
 
         <?php if ($state->hasMessage()): ?>
             <div class="message <?php echo $state->messageType; ?>" id="messageDiv" data-unlock-time="<?php echo $state->unlockTimeUTC ?? ''; ?>">
@@ -128,12 +126,14 @@ $state->handleDecryption($_GET['data'] ?? null);
             <?php endif; ?>
         <?php endif; ?>
 
-        <?php if (!$state->hasMessage()): ?>
-            <form id="passwordForm">
+        <?php if (!$state->hasMessage() && !$generatedPassword): ?>
+            <form id="passwordForm" method="POST" action="/">
                 <div class="form-group">
                     <label for="datetime"><?php echo h($t->unlockLabel); ?> <span class="label-note"><?php echo h($t->localTimeNote); ?></span>:</label>
                     <div class="datetime-wrapper">
                         <input type="datetime-local" id="datetime" name="datetime" required max="<?php echo $config->maxDateTime; ?>" onclick="this.showPicker()" data-utc-now="<?php echo $config->currentDateTime; ?>">
+                        <input type="hidden" name="action" value="generate">
+                        <input type="hidden" id="timezone" name="timezone" value="">
                         <button type="button" class="calendar-btn" onclick="document.getElementById('datetime').showPicker()">
                             <img src="<?php echo ViewConfiguration::ICON_PATH; ?>" alt="Calendar" width="20" height="20">
                         </button>
@@ -143,7 +143,29 @@ $state->handleDecryption($_GET['data'] ?? null);
             </form>
         <?php endif; ?>
 
-        <div id="result"></div>
+        <?php if ($generatedPassword): ?>
+            <div id="result" class="success" style="display: block;">
+                <strong>Generated Password:</strong><br>
+                <div class="url-box"><?php echo h($generatedPassword); ?></div>
+                <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
+                
+                <div style="margin-top: 30px;">
+                    <strong>Decrypt URL:</strong><br>
+                    <div class="url-box">
+                        <a href="<?php echo h($decryptUrl); ?>" class="decrypt-link" target="_blank"><?php echo h($decryptUrl); ?></a>
+                    </div>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($decryptUrl); ?>')">Copy URL</button>
+                </div>
+                
+                <small id="unlockTimeLocal" data-utc-time="<?php echo $unlockTimeUTC; ?>"></small>
+            </div>
+        <?php elseif ($errorMessage): ?>
+            <div id="result" class="error" style="display: block;">
+                <?php echo h($errorMessage); ?>
+            </div>
+        <?php else: ?>
+            <div id="result"></div>
+        <?php endif; ?>
     </div>
 
     <footer>
