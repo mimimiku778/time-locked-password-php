@@ -84,20 +84,9 @@ class StringCryptor
         $aesCbcEncryptedString = $components[0];
         $hash = $components[1];
 
-        // Try new format first (with additional hash data)
-        if ($additionalHashData !== null) {
-            $hashInput = $aesCbcEncryptedString . $additionalHashData;
-            if ($this->hkdfEquals($hashInput, $hash)) {
-                try {
-                    return $this->decryptAesCbcString($aesCbcEncryptedString);
-                } catch (\RuntimeException $e) {
-                    throw new \LogicException('Hash is valid but decryption fails: ' . $e->getMessage());
-                }
-            }
-        }
-
-        // Fall back to old format (without additional hash data)
-        if ($this->hkdfEquals($aesCbcEncryptedString, $hash)) {
+        $hashInput = $aesCbcEncryptedString . ($additionalHashData ?? '');
+        
+        if ($this->hkdfEquals($hashInput, $hash)) {
             try {
                 return $this->decryptAesCbcString($aesCbcEncryptedString);
             } catch (\RuntimeException $e) {

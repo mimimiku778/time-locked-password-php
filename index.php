@@ -50,12 +50,11 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
             $_POST['action'] ?? null,
             $_POST['datetime'] ?? null,
             $_POST['timezone'] ?? null,
-            $_SERVER['HTTP_HOST'] ?? null,
         );
         break;
     case 'GET':
         if (!empty($_GET['data'])) {
-            $state->handleDecryption($_GET['data'], $_GET['unlock_time'] ?? null);
+            $state->handleDecryption($_GET['data'], $_GET['unlock'] ?? null, $_GET['tz'] ?? null);
         }
         break;
     default:
@@ -131,9 +130,9 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
                 <div style="margin-top: 30px;">
                     <strong><?php echo h($t->decryptUrlLabel); ?></strong><br>
                     <div class="url-box">
-                        <a href="<?php echo h($generatorState->decryptUrl); ?>" class="decrypt-link" target="_blank"><?php echo h($generatorState->decryptUrl); ?></a>
+                        <a href="<?php echo h($generatorState->decryptParams); ?>" class="decrypt-link" target="_blank"><?php echo h($generatorState->decryptParams); ?></a>
                     </div>
-                    <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->decryptUrl); ?>')"><?php echo h($t->copyUrlButton); ?></button>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->decryptParams); ?>')"><?php echo h($t->copyUrlButton); ?></button>
                 </div>
 
                 <small><?php echo h($t->unlockTimeLabel); ?> <span id="unlockTimeLocal" data-utc-time="<?php echo $generatorState->unlockTimeUTC; ?>"></span></small>
