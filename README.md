@@ -22,11 +22,12 @@ This is the stable production deployment (not just a demo).
    - Access the generated URL
    - Before the specified date/time: the password cannot be displayed
    - After the specified date/time: the password is revealed again
+   - **Important**: Anyone with the URL can view the password after the unlock time. Keep the URL secure if used for private purposes.
 
 ## Features
-- **No Database Required**: All information is contained in the encrypted URL parameters
+- **No Data Storage**: No data is stored on the server - all information is contained in the encrypted URL parameters
 - **Time Restriction**: Cannot be decrypted before the specified date and time
-- **Maximum Duration Limit**: Future unlock times are limited to 3 months maximum for security and practical reasons
+- **Maximum Duration Limit**: The form limits future unlock times to 3 months maximum for practical reasons
 - **Encryption**: AES-256-CBC encryption
 - **Tamper Protection**: Integrity guaranteed by HMAC-SHA256
 - **GA4 Privacy**: Query parameters are masked in analytics (e.g., `?data=sensitive123` → `?data=data`)
@@ -103,11 +104,12 @@ sed -i "s/your-secret-openssl-key-here-replace/$OPENSSL_KEY/" src/config/secrets
    - 生成されたURLにアクセス
    - 指定日時前は表示不可（ロック継続）
    - 指定日時を過ぎると再度パスワードが表示される
+   - **重要**: 指定時刻以降は、そのURLにアクセスできる人なら誰でもパスワードを表示できます。プライベートな用途の場合はURLの管理にご注意ください。
 
 ## 特徴
-- **データベース不要**: すべての情報が暗号化されたURLパラメータに含まれる
+- **データ保持なし**: サーバー側では一切のデータを保持せず、すべての情報が暗号化されたURLパラメータに含まれる
 - **時間制限**: 指定された日時前には復号できない
-- **最大期間制限**: セキュリティと実用性の理由により、将来のアンロック時間は最大3ヶ月に制限されます
+- **最大期間制限**: フォームでの時間選択は実用性の理由により最大3ヶ月に制限されています
 - **暗号化**: AES-256-CBC暗号化
 - **改ざん防止**: HMAC-SHA256による完全性保証
 - **GA4プライバシー**: クエリパラメータをアナリティクスでマスク（例：`?data=sensitive123` → `?data=data`）
