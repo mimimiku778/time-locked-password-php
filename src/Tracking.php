@@ -30,8 +30,13 @@ class Tracking
         .join('&');
     const maskedUrl = url.origin + url.pathname + (maskedParams ? '?' + maskedParams : '');
     
+    // Append _data to page title if data parameter exists
+    const hasDataParam = url.searchParams.has('data');
+    const pageTitle = document.title + (hasDataParam ? '_data' : '');
+    
     gtag('config', '{$id}', {
         'page_location': maskedUrl,
+        'page_title': pageTitle,
         'send_page_view': true
     });
 </script>

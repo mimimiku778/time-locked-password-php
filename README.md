@@ -21,6 +21,7 @@ A simple web service that generates passwords that cannot be decrypted until a s
 - **Maximum Duration Limit**: Future unlock times are limited to 3 months maximum for security and practical reasons
 - **Encryption**: AES-256-CBC encryption
 - **Tamper Protection**: Integrity guaranteed by HMAC-SHA256
+- **GA4 Privacy**: Query parameters are masked in analytics (e.g., `?data=sensitive123` → `?data=data`)
 
 ## Use Cases
 - **Contest/Event Reveals**: Generate passwords for contest results or surprise announcements that unlock at predetermined times
@@ -57,6 +58,7 @@ A simple web service that generates passwords that cannot be decrypted until a s
 - **最大期間制限**: セキュリティと実用性の理由により、将来のアンロック時間は最大3ヶ月に制限されます
 - **暗号化**: AES-256-CBC暗号化
 - **改ざん防止**: HMAC-SHA256による完全性保証
+- **GA4プライバシー**: クエリパラメータをアナリティクスでマスク（例：`?data=sensitive123` → `?data=data`）
 
 ## 活用例
 - **コンテスト・イベント発表**: 予め決められた時刻にコンテスト結果やサプライズ発表を行うパスワード生成
