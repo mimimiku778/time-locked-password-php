@@ -35,7 +35,7 @@ class ViewState
     public function setSuccess(string $password, ?string $unlockTime = null): void
     {
         $this->decryptedPassword = $password;
-        $this->message = 'Password: ' . $password;
+        $this->message = $password;
         $this->messageType = 'success';
         $this->unlockTimeUTC = $unlockTime;
     }

@@ -1,11 +1,13 @@
 
-// DOM selectors
-const SELECTORS = {
+// DOM element IDs
+const IDS = {
     DATETIME_INPUT: 'datetime',
     MESSAGE_DIV: 'messageDiv',
     UNLOCK_TIME_DISPLAY: 'unlockTimeDisplay',
+    UNLOCK_TIME_LOCAL: 'unlockTimeLocal',
     PASSWORD_FORM: 'passwordForm',
-    RESULT_DIV: 'result'
+    RESULT_DIV: 'result',
+    TIMEZONE: 'timezone'
 };
 
 // Function to convert UTC time to local time (format according to locale)
@@ -29,7 +31,7 @@ function convertUTCToLocal(utcDateTimeString) {
 
 // Set minimum value for datetime-local input field
 document.addEventListener('DOMContentLoaded', function() {
-    const datetimeInput = document.getElementById(SELECTORS.DATETIME_INPUT);
+    const datetimeInput = document.getElementById(IDS.DATETIME_INPUT);
     if (datetimeInput) {
         // Get UTC time and convert to local time
         const utcNow = datetimeInput.getAttribute('data-utc-now');
@@ -47,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Convert message time to local format
-    const messageDiv = document.getElementById(SELECTORS.MESSAGE_DIV);
+    const messageDiv = document.getElementById(IDS.MESSAGE_DIV);
     if (messageDiv) {
         const unlockTime = messageDiv.getAttribute('data-unlock-time');
         if (unlockTime) {
@@ -55,28 +57,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const localUnlockTime = convertUTCToLocal(unlockTime);
             
             // For error messages, display unlock time
-            const unlockTimeDisplay = document.getElementById(SELECTORS.UNLOCK_TIME_DISPLAY);
+            const unlockTimeDisplay = document.getElementById(IDS.UNLOCK_TIME_DISPLAY);
             if (unlockTimeDisplay) {
-                unlockTimeDisplay.innerHTML = `Unlock time: <strong>${localUnlockTime}</strong>`;
+                unlockTimeDisplay.innerHTML = `<strong>${localUnlockTime}</strong>`;
             }
         }
     }
     
     // Display unlock time for generated password
-    const unlockTimeLocal = document.getElementById('unlockTimeLocal');
+    const unlockTimeLocal = document.getElementById(IDS.UNLOCK_TIME_LOCAL);
     if (unlockTimeLocal) {
         const utcTime = unlockTimeLocal.getAttribute('data-utc-time');
         if (utcTime) {
             const localTime = convertUTCToLocal(utcTime);
-            unlockTimeLocal.innerHTML = `Unlock time: ${localTime}`;
+            unlockTimeLocal.innerHTML = localTime;
         }
     }
 });
 
 // Set timezone value before form submission
-document.getElementById(SELECTORS.PASSWORD_FORM)?.addEventListener('submit', function(e) {
+document.getElementById(IDS.PASSWORD_FORM)?.addEventListener('submit', function(e) {
     // Set the user's timezone
-    const timezoneInput = document.getElementById('timezone');
+    const timezoneInput = document.getElementById(IDS.TIMEZONE);
     if (timezoneInput) {
         timezoneInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }

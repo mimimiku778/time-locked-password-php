@@ -14,6 +14,10 @@ class EnglishTranslation extends TranslationObject {
         $this->localTimeNote = '(your local time)';
         $this->generateButton = 'Generate Password';
         $this->copyButton = 'Copy Password';
+        $this->copyUrlButton = 'Copy URL';
+        $this->generatedPasswordLabel = 'Generated Password:';
+        $this->decryptUrlLabel = 'Decrypt URL:';
+        $this->unlockTimeLabel = 'Unlock time:';
         $this->serviceDescription = 'Generate time-locked passwords that decrypt only at your specified time. Perfect for scheduled releases and time-sensitive access control.';
         $this->feature1 = 'Password is shown once when generated';
         $this->feature2 = 'Access Decrypt URL after scheduled time to view password again';

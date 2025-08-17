@@ -2,13 +2,14 @@
 header('cache-control: private');
 date_default_timezone_set('UTC');
 
-// Load secrets for API processing
+// Load secrets class
 if (file_exists(__DIR__ . '/secrets.php')) {
     require_once 'secrets.php';
 } else {
     require_once 'example.secrets.php';
 }
 
+// Load required classes
 require_once 'src/PasswordManager.php';
 require_once 'src/ViewConfiguration.php';
 require_once 'src/ViewState.php';
@@ -16,7 +17,7 @@ require_once 'src/GeneratorViewState.php';
 require_once 'translation/Translation.php';
 require_once 'src/Tracking.php';
 
-
+// Escape HTML special characters
 function h(string $str): string
 {
     return htmlspecialchars($str);
@@ -25,6 +26,7 @@ function h(string $str): string
 // Initialize configuration and state
 $config = new ViewConfiguration();
 
+// Initialize view state
 $state = new ViewState(
     [
         new PasswordManager(Secrets::get('HKDF_KEY'), Secrets::get('OPENSSL_KEY')),
@@ -33,13 +35,15 @@ $state = new ViewState(
     ]
 );
 
+// Initialize generator state
 $generatorState = new GeneratorViewState(
     new PasswordManager(Secrets::get('HKDF_KEY'), Secrets::get('OPENSSL_KEY'))
 );
 
+// Get translation object
 $t = Translation::getObject();
 
-// Handle form submissions
+// Handle requests
 switch ($_SERVER['REQUEST_METHOD'] ?? null) {
     case 'POST':
         $generatorState->handleGeneration(
@@ -65,7 +69,9 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo h($t->ogTitle); ?></title>
     <meta name="description" content="<?php echo h($t->metaDescription); ?>">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
 
     <!-- Open Graph tags -->
     <meta property="og:title" content="<?php echo h($t->ogTitle); ?>">
@@ -83,12 +89,13 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
     <meta name="twitter:description" content="<?php echo h($t->twitterDescription); ?>">
     <meta name="twitter:image" content="http://<?php echo $_SERVER['HTTP_HOST']; ?>/assets/ogp.png">
 
-    <title><?php echo h($t->ogTitle); ?></title>
-    <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="<?php echo ViewConfiguration::CSS_PATH; ?>?v=<?php echo $config->cssVersion; ?>">
+
     <?php if (Secrets::get('GA4_ID')): ?>
+        <!-- Google Analytics 4 -->
         <?php echo Tracking::renderGA(Secrets::get('GA4_ID')); ?>
     <?php endif; ?>
+
+    <link rel="stylesheet" href="<?php echo ViewConfiguration::CSS_PATH; ?>?v=<?php echo $config->cssVersion; ?>">
 </head>
 
 <body>
@@ -118,19 +125,19 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
 
         <?php if ($generatorState->isGenerated()): ?>
             <div id="result" class="success" style="display: block;">
-                <strong>Generated Password:</strong><br>
+                <strong><?php echo h($t->generatedPasswordLabel); ?></strong><br>
                 <div class="url-box"><?php echo h($generatorState->generatedPassword); ?></div>
                 <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->generatedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
 
                 <div style="margin-top: 30px;">
-                    <strong>Decrypt URL:</strong><br>
+                    <strong><?php echo h($t->decryptUrlLabel); ?></strong><br>
                     <div class="url-box">
                         <a href="<?php echo h($generatorState->decryptUrl); ?>" class="decrypt-link" target="_blank"><?php echo h($generatorState->decryptUrl); ?></a>
                     </div>
-                    <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->decryptUrl); ?>')">Copy URL</button>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->decryptUrl); ?>')"><?php echo h($t->copyUrlButton); ?></button>
                 </div>
 
-                <small id="unlockTimeLocal" data-utc-time="<?php echo $generatorState->unlockTimeUTC; ?>"></small>
+                <small><?php echo h($t->unlockTimeLabel); ?> <span id="unlockTimeLocal" data-utc-time="<?php echo $generatorState->unlockTimeUTC; ?>"></span></small>
             </div>
         <?php elseif ($generatorState->hasError()): ?>
             <div id="result" class="error" style="display: block;">
@@ -144,7 +151,7 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
             <div class="message <?php echo $state->messageType; ?>" id="messageDiv" data-unlock-time="<?php echo $state->unlockTimeUTC ?? ''; ?>">
                 <span id="messageText"><?php echo h($state->message); ?></span>
                 <?php if ($state->unlockTimeUTC && $state->messageType === 'error'): ?>
-                    <div id="unlockTimeDisplay" class="unlock-time-display"></div>
+                    <div class="unlock-time-display"><?php echo h($t->unlockTimeLabel); ?> <span id="unlockTimeDisplay"></span></div>
                 <?php endif; ?>
             </div>
             <?php if ($state->messageType === 'success' && $state->decryptedPassword): ?>

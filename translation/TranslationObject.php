@@ -11,6 +11,10 @@ abstract class TranslationObject {
     public string $localTimeNote;
     public string $generateButton;
     public string $copyButton;
+    public string $copyUrlButton;
+    public string $generatedPasswordLabel;
+    public string $decryptUrlLabel;
+    public string $unlockTimeLabel;
     public string $serviceDescription;
     public string $feature1;
     public string $feature2;
