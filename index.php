@@ -11,22 +11,37 @@ if (file_exists(__DIR__ . '/secrets.php')) {
     require_once 'example.secrets.php';
 }
 
+/**
+ * Return class constant value if the class and constant exist; otherwise null.
+ */
+function classConstOrNull(string $class, string $const): mixed
+{
+    if (!class_exists($class)) {
+        return null;
+    }
+    $constFqn = $class . '::' . $const;
+    if (!defined($constFqn)) {
+        return null;
+    }
+    return constant($constFqn);
+}
+
 require_once 'src/PasswordManager.php';
 
 // Handle API requests
 (function () {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         header('Content-Type: application/json; charset=utf-8');
-        
+
         if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
             try {
                 $passwordManager = new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY);
-                
+
                 // Process datetime sent from client as UTC
                 $unlockDateTime = new DateTime($_POST['datetime'], new DateTimeZone('UTC'));
                 $password = $passwordManager->generateRandomPassword();
                 $encryptedData = $passwordManager->encryptPassword($password, $unlockDateTime->format('Y-m-d H:i:s'));
-                
+
                 echo json_encode([
                     'password' => $password,
                     'encrypted_data' => $encryptedData,
@@ -94,7 +109,7 @@ $state->handleDecryption($_GET['data'] ?? null);
     <title><?php echo h($t->ogTitle); ?></title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="<?php echo ViewConfiguration::CSS_PATH; ?>?v=<?php echo $config->cssVersion; ?>">
-    <?php echo Tracking::renderGA(Secrets::GA4_ID ?? ''); ?>
+    <?php echo Tracking::renderGA(classConstOrNull(Secrets::class, 'GA4_ID')); ?>
 </head>
 
 <body>

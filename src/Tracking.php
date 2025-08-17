@@ -22,7 +22,18 @@ class Tracking
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '{$id}');
+    
+    // Mask query parameter values for privacy
+    const url = new URL(window.location.href);
+    const maskedParams = Array.from(url.searchParams.keys())
+        .map(key => `\${key}=\${key}`)
+        .join('&');
+    const maskedUrl = url.origin + url.pathname + (maskedParams ? '?' + maskedParams : '');
+    
+    gtag('config', '{$id}', {
+        'page_location': maskedUrl,
+        'send_page_view': true
+    });
 </script>
 HTML;
     }
