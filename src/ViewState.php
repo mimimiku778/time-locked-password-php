@@ -6,13 +6,17 @@
 class ViewState
 {
 
+    public ?string $message = null;
+    public ?string $messageType = null;
+    public ?string $decryptedPassword = null;
+    public ?string $unlockTimeUTC = null;
+
+    /**
+     * @param PasswordManager[] $passwordManagers Ordered list of password manager instances used for decryption.
+     *               　　　　　　　　　　           Decryption is attempted in this order until one succeeds.
+     */
     public function __construct(
-        private PasswordManager $passwordManager,
-        private PasswordManager $passwordManagerDefault,
-        public ?string $message = null,
-        public ?string $messageType = null,
-        public ?string $decryptedPassword = null,
-        public ?string $unlockTimeUTC = null,
+        private array $passwordManagers
     ) {}
 
     /**
@@ -45,8 +49,8 @@ class ViewState
     }
 
     /**
-     * Handle password decryption and set appropriate state
-     * If primary decryption fails, attempt fallback using the default manager.
+     * Handle password decryption by iterating through password managers in order.
+     * Uses the first successful decryption result; if all fail, sets the first error.
      */
     public function handleDecryption(?string $encryptedData): void
     {
@@ -54,21 +58,26 @@ class ViewState
             return;
         }
 
-        $result = $this->passwordManager->decryptPassword($encryptedData);
+        $firstError = null;
 
-        if (isset($result['error'])) {
-            // Try fallback decryption
-            $fallbackResult = $this->passwordManagerDefault->decryptPassword($encryptedData);
-            if (!isset($fallbackResult['error'])) {
-                // Fallback succeeded
-                $this->setSuccess($fallbackResult['password'], $fallbackResult['unlock_time'] ?? null);
-                return;
+        foreach ($this->passwordManagers as $manager) {
+            $result = $manager->decryptPassword($encryptedData);
+
+            if (isset($result['error'])) {
+                if ($firstError === null) {
+                    $firstError = $result;
+                }
+                continue; // Continue to next fallback manager
             }
-            // Both failed: keep the first error
-            $this->setError($result['error'], $result['unlock_time'] ?? null);
+
+            // Use the first successful result
+            $this->setSuccess($result['password'], $result['unlock_time'] ?? null);
             return;
         }
 
-        $this->setSuccess($result['password'], $result['unlock_time'] ?? null);
+        // If all managers failed
+        if ($firstError !== null) {
+            $this->setError($firstError['error'], $firstError['unlock_time'] ?? null);
+        }
     }
 }

@@ -8,7 +8,7 @@ date_default_timezone_set('UTC');
 if (file_exists(__DIR__ . '/secrets.php')) {
     require_once 'secrets.php';
 } else {
-    require_once 'secrets.example.php';
+    require_once 'example.secrets.php';
 }
 
 require_once 'src/PasswordManager.php';
@@ -17,16 +17,16 @@ require_once 'src/PasswordManager.php';
 (function () {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         header('Content-Type: application/json; charset=utf-8');
-
+        
         if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
             try {
                 $passwordManager = new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY);
-
+                
                 // Process datetime sent from client as UTC
                 $unlockDateTime = new DateTime($_POST['datetime'], new DateTimeZone('UTC'));
                 $password = $passwordManager->generateRandomPassword();
                 $encryptedData = $passwordManager->encryptPassword($password, $unlockDateTime->format('Y-m-d H:i:s'));
-
+                
                 echo json_encode([
                     'password' => $password,
                     'encrypted_data' => $encryptedData,
@@ -44,6 +44,7 @@ require_once 'src/PasswordManager.php';
 require_once 'src/ViewConfiguration.php';
 require_once 'src/ViewState.php';
 require_once 'translation/Translation.php';
+require_once 'src/Tracking.php';
 
 function h(string $str): string
 {
@@ -52,9 +53,13 @@ function h(string $str): string
 
 // Initialize configuration and state
 $config = new ViewConfiguration();
+
 $state = new ViewState(
-    new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY),
-    new PasswordManager('your-secret-hkdf-key-here-replace', 'your-secret-openssl-key-here-replace')
+    [
+        new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY),
+        // Fallback password manager
+        new PasswordManager('your-secret-hkdf-key-here-replace', 'your-secret-openssl-key-here-replace')
+    ]
 );
 
 $t = Translation::getObject();
@@ -89,6 +94,7 @@ $state->handleDecryption($_GET['data'] ?? null);
     <title><?php echo h($t->ogTitle); ?></title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="<?php echo ViewConfiguration::CSS_PATH; ?>?v=<?php echo $config->cssVersion; ?>">
+    <?php echo Tracking::renderGA(Secrets::GA4_ID ?? ''); ?>
 </head>
 
 <body>
