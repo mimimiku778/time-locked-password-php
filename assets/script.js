@@ -73,6 +73,17 @@ document.addEventListener('DOMContentLoaded', function() {
             unlockTimeLocal.innerHTML = localTime;
         }
     }
+    
+    // Convert relative decrypt params to full URL
+    const decryptLinks = document.querySelectorAll('.decrypt-link');
+    decryptLinks.forEach(link => {
+        const params = link.getAttribute('href');
+        if (params && params.startsWith('?')) {
+            const fullUrl = window.location.origin + '/' + params;
+            link.setAttribute('href', fullUrl);
+            link.textContent = fullUrl;
+        }
+    });
 });
 
 // Set timezone value before form submission
@@ -85,6 +96,10 @@ document.getElementById(IDS.PASSWORD_FORM)?.addEventListener('submit', function(
 });
 
 function copyToClipboard(text) {
+    // If text is relative params, convert to full URL
+    if (text.startsWith('?')) {
+        text = window.location.origin + '/' + text;
+    }
     navigator.clipboard.writeText(text).then(function() {
         alert('Copied to clipboard');
     });
