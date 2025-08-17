@@ -16,27 +16,48 @@ class PasswordManager {
     
     public function encryptPassword(string $password, string $unlockDateTime): string {
         $data = json_encode([
-            'password' => $password,
-            'unlock_time' => $unlockDateTime
+            'password' => $password
         ]);
         
-        return $this->cryptor->encryptAndHashString($data);
+        return $this->cryptor->encryptAndHashString($data, $unlockDateTime);
     }
     
-    public function decryptPassword(string $encryptedData): array {
+    public function decryptPassword(string $encryptedData, ?string $unlockTimeFromUrl = null): array {
         try {
-            $decrypted = $this->cryptor->verifyHashAndDecrypt($encryptedData);
+            $decrypted = $this->cryptor->verifyHashAndDecrypt($encryptedData, $unlockTimeFromUrl);
         } catch (\RuntimeException | \LogicException $e) {
             return ['error' => 'Decryption failed: ' . $e->getMessage()];
         }
         
         $passwordData = json_decode($decrypted, true);
-        if (!$passwordData || !isset($passwordData['password'], $passwordData['unlock_time'])) {
+        if (!$passwordData || !isset($passwordData['password'])) {
             return ['error' => 'Invalid password data'];
         }
         
+        // Determine unlock time (old format has it in JSON, new format gets it from URL)
+        $unlockTimeString = null;
+        if (isset($passwordData['unlock_time'])) {
+            // Old format - unlock_time is in the encrypted data
+            $unlockTimeString = $passwordData['unlock_time'];
+        } elseif ($unlockTimeFromUrl) {
+            // New format - unlock_time is from URL parameter
+            $unlockTimeString = $unlockTimeFromUrl;
+        } else {
+            return ['error' => 'Missing unlock time'];
+        }
+        
         $now = new DateTime('now', new DateTimeZone('UTC'));
-        $unlockTime = new DateTime($passwordData['unlock_time'], new DateTimeZone('UTC'));
+        
+        // Handle both old format (Y-m-d H:i:s) and new format (Y-m-d\TH:i:s\Z)
+        try {
+            $unlockTime = new DateTime($unlockTimeString, new DateTimeZone('UTC'));
+        } catch (Exception $e) {
+            // Try parsing as ISO 8601 format if the first attempt fails
+            $unlockTime = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $unlockTimeString, new DateTimeZone('UTC'));
+            if (!$unlockTime) {
+                return ['error' => 'Invalid unlock time format'];
+            }
+        }
         
         if ($now < $unlockTime) {
             return [

@@ -34,12 +34,12 @@ class GeneratorViewState
             $localDateTime->setTimezone(new DateTimeZone('UTC'));
 
             $this->generatedPassword = $this->passwordManager->generateRandomPassword();
+            $this->unlockTimeUTC = $localDateTime->format('Y-m-d\TH:i:s\Z');
             $this->encryptedData = $this->passwordManager->encryptPassword(
                 $this->generatedPassword,
-                $localDateTime->format('Y-m-d H:i:s')
+                $this->unlockTimeUTC
             );
-            $this->unlockTimeUTC = $localDateTime->format('Y-m-d\TH:i:s\Z');
-            $this->decryptUrl = 'http://' . $httpHost . '/?data=' . $this->encryptedData;
+            $this->decryptUrl = 'http://' . $httpHost . '/?data=' . $this->encryptedData . '&unlock_time=' . urlencode($this->unlockTimeUTC);
         } catch (Exception) {
             $this->errorMessage = 'Invalid datetime format';
         }

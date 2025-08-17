@@ -55,7 +55,7 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
         break;
     case 'GET':
         if (!empty($_GET['data'])) {
-            $state->handleDecryption($_GET['data']);
+            $state->handleDecryption($_GET['data'], $_GET['unlock_time'] ?? null);
         }
         break;
     default:
