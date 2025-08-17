@@ -1,4 +1,7 @@
 # Password Generator That Shows Passwords at Scheduled Time
+
+[日本語 / Japanese Version](#タイムロック式パスワードジェネレータ)
+
 <img alt="image-en" src="https://github.com/user-attachments/assets/80f8b9c9-430d-4cc9-a592-73aedfa10890" />
 
 ## Overview
