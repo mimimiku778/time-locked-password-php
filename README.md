@@ -1,5 +1,5 @@
 # Password Generator That Shows Passwords at Scheduled Time
-<img width="1998" height="1473" alt="image-en" src="https://github.com/user-attachments/assets/80f8b9c9-430d-4cc9-a592-73aedfa10890" />
+<img alt="image-en" src="https://github.com/user-attachments/assets/80f8b9c9-430d-4cc9-a592-73aedfa10890" />
 
 ## Overview
 A simple web service that generates passwords that cannot be decrypted until a specified date and time.
@@ -80,7 +80,7 @@ sed -i "s/your-secret-openssl-key-here-replace/$OPENSSL_KEY/" src/config/secrets
 ---
 
 # タイムロック式パスワードジェネレータ
-<img width="1978" height="1510" alt="image-ja" src="https://github.com/user-attachments/assets/7cc22c66-c37c-4282-932b-01e66ec482d6" />
+<img alt="image-ja" src="https://github.com/user-attachments/assets/7cc22c66-c37c-4282-932b-01e66ec482d6" />
 
 ## 概要
 指定された日時まで復号できないパスワードを生成するシンプルなWebサービスです。
