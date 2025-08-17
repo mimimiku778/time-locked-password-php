@@ -52,12 +52,8 @@ class ViewState
      * Handle password decryption by iterating through password managers in order.
      * Uses the first successful decryption result; if all fail, sets the first error.
      */
-    public function handleDecryption(?string $encryptedData): void
+    public function handleDecryption(string $encryptedData): void
     {
-        if (!$encryptedData) {
-            return;
-        }
-
         $firstError = null;
 
         foreach ($this->passwordManagers as $manager) {

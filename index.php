@@ -1,7 +1,5 @@
 <?php
-header('Cache-Control: no-cache, no-store, must-revalidate');
-header('Pragma: no-cache');
-header('Expires: 0');
+header('cache-control: private');
 date_default_timezone_set('UTC');
 
 // Load secrets for API processing
@@ -11,53 +9,13 @@ if (file_exists(__DIR__ . '/secrets.php')) {
     require_once 'example.secrets.php';
 }
 
-/**
- * Return class constant value if the class and constant exist; otherwise null.
- */
-function classConstOrNull(string $class, string $const): mixed
-{
-    if (!class_exists($class)) {
-        return null;
-    }
-    $constFqn = $class . '::' . $const;
-    if (!defined($constFqn)) {
-        return null;
-    }
-    return constant($constFqn);
-}
-
 require_once 'src/PasswordManager.php';
-
-// Handle form submissions
-$generatedPassword = null;
-$encryptedData = null;
-$unlockTimeUTC = null;
-$decryptUrl = null;
-$errorMessage = null;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'generate' && isset($_POST['datetime'])) {
-        try {
-            $passwordManager = new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY);
-
-            // Convert local datetime to UTC
-            $localDateTime = new DateTime($_POST['datetime'], new DateTimeZone($_POST['timezone'] ?? 'UTC'));
-            $localDateTime->setTimezone(new DateTimeZone('UTC'));
-            
-            $generatedPassword = $passwordManager->generateRandomPassword();
-            $encryptedData = $passwordManager->encryptPassword($generatedPassword, $localDateTime->format('Y-m-d H:i:s'));
-            $unlockTimeUTC = $localDateTime->format('Y-m-d\TH:i:s\Z');
-            $decryptUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/?data=' . $encryptedData;
-        } catch (Exception $e) {
-            $errorMessage = 'Invalid datetime format';
-        }
-    }
-}
-
 require_once 'src/ViewConfiguration.php';
 require_once 'src/ViewState.php';
+require_once 'src/GeneratorViewState.php';
 require_once 'translation/Translation.php';
 require_once 'src/Tracking.php';
+
 
 function h(string $str): string
 {
@@ -69,15 +27,36 @@ $config = new ViewConfiguration();
 
 $state = new ViewState(
     [
-        new PasswordManager(Secrets::HKDF_KEY, Secrets::OPENSSL_KEY),
+        new PasswordManager(Secrets::get('HKDF_KEY'), Secrets::get('OPENSSL_KEY')),
         // Fallback password manager
-        new PasswordManager('your-secret-hkdf-key-here-replace', 'your-secret-openssl-key-here-replace')
+        new PasswordManager('your-secret-hkdf-key-here-replace', 'your-secret-openssl-key-here-replace'),
     ]
+);
+
+$generatorState = new GeneratorViewState(
+    new PasswordManager(Secrets::get('HKDF_KEY'), Secrets::get('OPENSSL_KEY'))
 );
 
 $t = Translation::getObject();
 
-$state->handleDecryption($_GET['data'] ?? null);
+// Handle form submissions
+switch ($_SERVER['REQUEST_METHOD'] ?? null) {
+    case 'POST':
+        $generatorState->handleGeneration(
+            $_POST['action'] ?? null,
+            $_POST['datetime'] ?? null,
+            $_POST['timezone'] ?? null,
+            $_SERVER['HTTP_HOST'] ?? null,
+        );
+        break;
+    case 'GET':
+        if (!empty($_GET['data'])) {
+            $state->handleDecryption($_GET['data']);
+        }
+        break;
+    default:
+        exit('Invalid request method');
+}
 
 ?>
 <!DOCTYPE html>
@@ -107,26 +86,20 @@ $state->handleDecryption($_GET['data'] ?? null);
     <title><?php echo h($t->ogTitle); ?></title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="<?php echo ViewConfiguration::CSS_PATH; ?>?v=<?php echo $config->cssVersion; ?>">
-    <?php echo Tracking::renderGA(classConstOrNull(Secrets::class, 'GA4_ID')); ?>
+    <?php if (Secrets::get('GA4_ID')): ?>
+        <?php echo Tracking::renderGA(Secrets::get('GA4_ID')); ?>
+    <?php endif; ?>
 </head>
 
 <body>
     <div class="container">
-        <h1><a href="/" id="pageTitle" target="_blank"><?php echo h($t->pageTitle); ?></a></h1>
-
-        <?php if ($state->hasMessage()): ?>
-            <div class="message <?php echo $state->messageType; ?>" id="messageDiv" data-unlock-time="<?php echo $state->unlockTimeUTC ?? ''; ?>">
-                <span id="messageText"><?php echo h($state->message); ?></span>
-                <?php if ($state->unlockTimeUTC && $state->messageType === 'error'): ?>
-                    <div id="unlockTimeDisplay" class="unlock-time-display"></div>
-                <?php endif; ?>
-            </div>
-            <?php if ($state->messageType === 'success' && $state->decryptedPassword): ?>
-                <button class="copy-btn" onclick="copyToClipboard('<?php echo h($state->decryptedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
-            <?php endif; ?>
+        <?php if ($state->hasMessage() || $generatorState->isGenerated()): ?>
+            <h1><a href="/" id="pageTitle" target="_blank"><?php echo h($t->pageTitle); ?></a></h1>
+        <?php else: ?>
+            <h1><?php echo h($t->pageTitle); ?></h1>
         <?php endif; ?>
 
-        <?php if (!$state->hasMessage() && !$generatedPassword): ?>
+        <?php if (!$state->hasMessage() && !$generatorState->isGenerated()): ?>
             <form id="passwordForm" method="POST" action="/">
                 <div class="form-group">
                     <label for="datetime"><?php echo h($t->unlockLabel); ?> <span class="label-note"><?php echo h($t->localTimeNote); ?></span>:</label>
@@ -143,28 +116,40 @@ $state->handleDecryption($_GET['data'] ?? null);
             </form>
         <?php endif; ?>
 
-        <?php if ($generatedPassword): ?>
+        <?php if ($generatorState->isGenerated()): ?>
             <div id="result" class="success" style="display: block;">
                 <strong>Generated Password:</strong><br>
-                <div class="url-box"><?php echo h($generatedPassword); ?></div>
-                <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
-                
+                <div class="url-box"><?php echo h($generatorState->generatedPassword); ?></div>
+                <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->generatedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
+
                 <div style="margin-top: 30px;">
                     <strong>Decrypt URL:</strong><br>
                     <div class="url-box">
-                        <a href="<?php echo h($decryptUrl); ?>" class="decrypt-link" target="_blank"><?php echo h($decryptUrl); ?></a>
+                        <a href="<?php echo h($generatorState->decryptUrl); ?>" class="decrypt-link" target="_blank"><?php echo h($generatorState->decryptUrl); ?></a>
                     </div>
-                    <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($decryptUrl); ?>')">Copy URL</button>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->decryptUrl); ?>')">Copy URL</button>
                 </div>
-                
-                <small id="unlockTimeLocal" data-utc-time="<?php echo $unlockTimeUTC; ?>"></small>
+
+                <small id="unlockTimeLocal" data-utc-time="<?php echo $generatorState->unlockTimeUTC; ?>"></small>
             </div>
-        <?php elseif ($errorMessage): ?>
+        <?php elseif ($generatorState->hasError()): ?>
             <div id="result" class="error" style="display: block;">
-                <?php echo h($errorMessage); ?>
+                <?php echo h($generatorState->errorMessage); ?>
             </div>
         <?php else: ?>
             <div id="result"></div>
+        <?php endif; ?>
+
+        <?php if ($state->hasMessage()): ?>
+            <div class="message <?php echo $state->messageType; ?>" id="messageDiv" data-unlock-time="<?php echo $state->unlockTimeUTC ?? ''; ?>">
+                <span id="messageText"><?php echo h($state->message); ?></span>
+                <?php if ($state->unlockTimeUTC && $state->messageType === 'error'): ?>
+                    <div id="unlockTimeDisplay" class="unlock-time-display"></div>
+                <?php endif; ?>
+            </div>
+            <?php if ($state->messageType === 'success' && $state->decryptedPassword): ?>
+                <button class="copy-btn" onclick="copyToClipboard('<?php echo h($state->decryptedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 

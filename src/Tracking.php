@@ -9,11 +9,8 @@ class Tracking
     /**
      * Returns the GA4 tag snippet. If the measurement ID is empty or null, returns an empty string.
      */
-    public static function renderGA(?string $measurementId): string
+    public static function renderGA(string $measurementId): string
     {
-        if (!$measurementId) {
-            return '';
-        }
         $id = htmlspecialchars($measurementId, ENT_QUOTES, 'UTF-8');
 
         return <<<HTML
