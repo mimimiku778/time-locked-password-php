@@ -17,7 +17,6 @@ This is the stable production deployment (not just a demo).
    - System generates a random password (16 characters)
    - The generated password is shown ONLY ONCE at this moment (please copy and store it now)
    - An encrypted URL is issued that can later reveal the password after the unlock time
-   - Note: If you close the page now without copying, you cannot see the password again until the scheduled unlock time
 2. **Password Decryption**
    - Access the generated URL
    - Before the specified date/time: the password cannot be displayed
@@ -98,12 +97,11 @@ sed -i "s/your-secret-openssl-key-here-replace/$OPENSSL_KEY/" src/config/secrets
    - 復号が可能になる日時を指定
    - システムがランダムパスワード（16文字）を生成
    - このタイミングでパスワードは「一度だけ」表示されます（必ずここでコピーしてください）
-   - 後で指定時刻以降に再表示できる暗号化URLが発行される
-   - ここでページを閉じたりコピーし忘れた場合、指定時刻を過ぎるまで再確認できません
+   - 後で指定時刻以降に再表示できる Decrypt URL が発行される
 2. **パスワード復号**
-   - 生成されたURLにアクセス
+   - 生成された Decrypt URL にアクセス
    - 指定日時前は表示不可（ロック継続）
-   - 指定日時を過ぎると再度パスワードが表示される
+   - 指定日時を過ぎるとパスワードが表示される
    - **重要**: 指定時刻以降は、そのURLにアクセスできる人なら誰でもパスワードを表示できます。プライベートな用途の場合はURLの管理にご注意ください。
 
 ## 特徴
