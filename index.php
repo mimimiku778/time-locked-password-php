@@ -125,11 +125,9 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
                 <div class="warning-box">
                     <?php echo h($t->passwordWarning); ?>
                 </div>
-
                 <strong><?php echo h($t->generatedPasswordLabel); ?></strong><br>
                 <div class="url-box"><?php echo h($generatorState->generatedPassword); ?></div>
                 <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->generatedPassword); ?>')"><?php echo h($t->copyButton); ?></button>
-
                 <div style="margin-top: 30px;">
                     <strong><?php echo h($t->decryptUrlLabel); ?></strong><br>
                     <div class="url-box">
@@ -137,7 +135,6 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
                     </div>
                     <button type="button" class="copy-btn" onclick="copyToClipboard('<?php echo h($generatorState->decryptParams); ?>')"><?php echo h($t->copyUrlButton); ?></button>
                 </div>
-
                 <small><?php echo h($t->unlockTimeLabel); ?> <span id="unlockTimeLocal" data-utc-time="<?php echo $generatorState->unlockTimeUTC; ?>"></span></small>
             </div>
         <?php elseif ($generatorState->hasError()): ?>
