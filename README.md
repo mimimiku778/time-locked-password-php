@@ -110,7 +110,7 @@ sed -i "s/your-secret-openssl-key-here-replace/$OPENSSL_KEY/" src/config/secrets
 - **最大期間制限**: フォームでの時間選択は実用性の理由により最大3ヶ月に制限されています
 - **暗号化**: AES-256-CBC暗号化
 - **改ざん防止**: HMAC-SHA256による完全性保証
-- **GA4プライバシー**: クエリパラメータをアナリティクスでマスク（例：`?data=sensitive123` → `?data=data`）
+- **GA4プライバシー**: アナリティクスに送信するクエリパラメータをマスク（例：`?data=sensitive123` → `?data=data`）
 - **自動言語判別**: ブラウザの言語設定に応じて英語 / 日本語へ自動切替（現状 en / ja 対応）
 
 ## 活用例
