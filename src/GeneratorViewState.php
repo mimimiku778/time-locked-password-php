@@ -56,15 +56,15 @@ class GeneratorViewState
 
             $params = [
                 // Use original local datetime for readable URL format
-                'unlock' => TimeUtility::convertLocalToReadableFormat($datetime),
-                'tz' => $timezone ?? 'UTC',
                 'data' => $this->passwordManager->encryptPassword(
                     $this->generatedPassword,
                     $datetime,
                     $timezone ?? 'UTC'
-                )
+                ),
+                'tz' => $timezone ?? 'UTC',
+                'unlock' => TimeUtility::convertLocalToReadableFormat($datetime),
             ];
-            
+
             $this->decryptParams = '?' . http_build_query($params);
         } catch (Exception) {
             $this->errorMessage = 'Invalid datetime format';
