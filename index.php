@@ -1,4 +1,7 @@
 <?php
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header('Cache-Control: no-store');
 date_default_timezone_set('UTC');
 
@@ -78,9 +81,6 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
     <meta property="og:type" content="website">
     <meta property="og:url" content="http://<?php echo $_SERVER['HTTP_HOST']; ?>">
     <meta property="og:image" content="http://<?php echo $_SERVER['HTTP_HOST']; ?>/assets/ogp.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/png">
 
     <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image">
@@ -98,7 +98,9 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
 
 <body>
     <div class="container">
+
         <?php if (!$state->hasMessage() && !$generatorState->isGenerated()): ?>
+            <!-- Generate password form -->
             <h1><?php echo h($t->pageTitle); ?></h1>
             <form id="passwordForm" method="POST" action="/">
                 <div class="form-group">
@@ -117,6 +119,7 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
         <?php endif; ?>
 
         <?php if ($generatorState->isGenerated()): ?>
+            <!-- Generated password display -->
             <h1><a href="/" id="pageTitle" target="_blank"><?php echo h($t->pageTitle); ?></a></h1>
             <div id="result" class="success" style="display: block;">
                 <div class="warning-box">
@@ -138,15 +141,18 @@ switch ($_SERVER['REQUEST_METHOD'] ?? null) {
                 <small><?php echo h($t->unlockTimeLabel); ?> <span id="unlockTimeLocal" data-utc-time="<?php echo $generatorState->unlockTimeUTC; ?>"></span></small>
             </div>
         <?php elseif ($generatorState->hasError()): ?>
+            <!-- Error display -->
             <h1><a href="/" id="pageTitle"><?php echo h($t->pageTitle); ?></a></h1>
             <div id="result" class="error" style="display: block;">
                 <?php echo h($generatorState->errorMessage); ?>
             </div>
         <?php else: ?>
+            <!-- Decrypted password display -->
             <div id="result"></div>
         <?php endif; ?>
 
         <?php if ($state->hasMessage()): ?>
+            <!-- Message display -->
             <h1><a href="/" id="pageTitle"><?php echo h($t->pageTitle); ?></a></h1>
             <div class="message <?php echo $state->messageType; ?>" id="messageDiv" data-unlock-time="<?php echo $state->unlockTimeUTC ?? ''; ?>">
                 <span id="messageText"><?php echo h($state->message); ?></span>

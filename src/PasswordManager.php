@@ -70,7 +70,7 @@ class PasswordManager
     public function decryptPassword(string $encryptedData, ?string $readableTime = null, ?string $timezone = null): array
     {
         $normalizedTime = null;
-        if ($readableTime || $timezone) {
+        if ($readableTime && $timezone) {
             // Use TimeUtility to parse readable time and convert to UTC for hashing
             try {
                 $normalizedTime = TimeUtility::parseReadableTimeToUTC($readableTime, $timezone);
