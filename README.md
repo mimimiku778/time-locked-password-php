@@ -1,6 +1,6 @@
 # Password Generator That Shows Passwords at Scheduled Time
 
-[日本語 / Japanese Version](#タイムロック式パスワードジェネレータ)
+[日本語 / Japanese Version](#時限錠パスワード)
 
 <img alt="image-en" src="https://github.com/user-attachments/assets/80f8b9c9-430d-4cc9-a592-73aedfa10890" />
 
@@ -83,7 +83,7 @@ sed -i "s/your-secret-openssl-key-here-replace/$OPENSSL_KEY/" src/config/secrets
 
 ---
 
-# タイムロック式パスワードジェネレータ
+# 時限錠パスワード
 <img alt="image-ja" src="https://github.com/user-attachments/assets/7cc22c66-c37c-4282-932b-01e66ec482d6" />
 
 ## 概要

@@ -5,10 +5,10 @@ require_once __DIR__ . '/TranslationObject.php';
 class JapaneseTranslation extends TranslationObject {
     public function __construct() {
         $this->metaDescription = '指定した時刻以降に復号される時間ロック付きパスワードを生成。予定リリース、指定時間までのアクセス制御に最適。';
-        $this->pageTitle = '🔒 タイムロック式パスワードジェネレータ';
-        $this->ogTitle = 'タイムロック式パスワードジェネレータ';
+        $this->pageTitle = '🔒 時限錠パスワード';
+        $this->ogTitle = '時限錠パスワード';
         $this->ogDescription = '指定した時刻以降に復号される時間ロック付きパスワードを生成。予定リリース、指定時間までのアクセス制御に最適。';
-        $this->twitterTitle = 'タイムロック式パスワードジェネレータ';
+        $this->twitterTitle = '時限錠パスワード';
         $this->twitterDescription = '指定した時刻以降に復号される時間ロック付きパスワードを生成。予定リリース、指定時間までのアクセス制御に最適。';
         $this->unlockLabel = 'ロック解除日時';
         $this->localTimeNote = '(現地時間)';

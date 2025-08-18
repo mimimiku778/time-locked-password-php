@@ -5,10 +5,10 @@ require_once __DIR__ . '/TranslationObject.php';
 class EnglishTranslation extends TranslationObject {
     public function __construct() {
         $this->metaDescription = 'Generate time-locked passwords that decrypt only at your specified time. Perfect for scheduled releases and time-sensitive access control.';
-        $this->pageTitle = '🔒 Password Generator That Shows Passwords at Scheduled Time';
-        $this->ogTitle = 'Password Generator That Shows Passwords at Scheduled Time';
+        $this->pageTitle = '🔒 Time-locked Password';
+        $this->ogTitle = 'Time-locked Password';
         $this->ogDescription = 'Generate time-locked passwords that decrypt only at your specified time. Perfect for scheduled releases and time-sensitive access control.';
-        $this->twitterTitle = 'Password Generator That Shows Passwords at Scheduled Time';
+        $this->twitterTitle = 'Time-locked Password';
         $this->twitterDescription = 'Generate time-locked passwords that decrypt only at your specified time. Perfect for scheduled releases and time-sensitive access control.';
         $this->unlockLabel = 'Unlock Date & Time';
         $this->localTimeNote = '(your local time)';
